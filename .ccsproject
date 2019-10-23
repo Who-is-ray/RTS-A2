@@ -5,7 +5,7 @@
 	<deviceVariant value="Cortex M.TM4C1294NCPDT"/>
 	<deviceFamily value="TMS470"/>
 	<deviceEndianness value="little"/>
-	<codegenToolVersion value="18.12.2.LTS"/>
+	<codegenToolVersion value="18.12.3.LTS"/>
 	<isElfFormat value="true"/>
 	<linkerCommandFile value="tm4c1294ncpdt.cmd"/>
 	<rts value="libc.a"/>
