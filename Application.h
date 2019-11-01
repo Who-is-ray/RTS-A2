@@ -8,7 +8,7 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
-/* Run application*/
-void Run();
+/* Check if input queue has data to process*/
+void CheckInputQueue();
 
 #endif /* APPLICATION_H_ */

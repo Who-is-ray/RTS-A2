@@ -72,33 +72,6 @@ const char mon_list[NUM_OF_MON][NUM_OF_CHAR_IN_MON]={"JAN","FEB","MAR","APR","MA
 //
 //*****************************************************************************
 
-/* Transmit a character*/
-void TransChar(char c)
-{
-    while(EnQueue(OUTPUT, UART, c)==FALSE); // wait until it is enqueued
-}
-
-/* Output a string*/
-void OutputString(const char* s)
-{
-    int i;
-    for(i = 0; i <= strlen(s); i++) // output each character in string
-        TransChar(s[i]);
-}
-
-/* Move cursor to new line*/
-void OutputNewLine()
-{
-    TransChar(ENTER);
-    TransChar(LINE_FEED);
-}
-
-/* Move cursor to new line and output prefix*/
-void OutputNewLinePrefix()
-{
-    OutputNewLine();
-    OutputString("> ");
-}
 
 /* Output current time*/
 void OutputTime(Systick_Clock c)
@@ -311,20 +284,6 @@ void CheckAlarm()
     }
 }
 
-/* Initialization Uart, Systick and Queues
- * Enable interrupts*/
-void Initialization()
-{
-    /* Initialize UART */
-    UART0_Init();           // Initialize UART0
-    Queue_Init();           // Initialize Queues
-    InterruptEnable(INT_VEC_UART0);       // Enable UART0 interrupts
-    UART0_IntEnable(UART_INT_RX | UART_INT_TX); // Enable Receive and Transmit interrupts
-    SysTickInit();  // Enable Systick
-    InterruptMasterEnable();    // Enable Master (CPU) Interrupts
-    OutputString("> ");     // Output first pre-fix
-}
-
 /* check if input queue has data to process
  * process if has*/
 void CheckInputQueue()
@@ -490,20 +449,4 @@ void CheckInputQueue()
             }
         }
     }
-}
-
-
-//****************************************************************************
-//
-// Public functions
-//
-//*****************************************************************************
-
-/* Run application*/
-void Run()
-{
-    Initialization();
-
-    while(1)
-        CheckInputQueue();
 }
