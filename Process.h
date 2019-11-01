@@ -62,11 +62,18 @@ typedef struct
 
 struct PCB
 {
-    /* Stack pointer - r13 (PSP) */
-    Stack* PSP;
     /* Links to adjacent PCBs */
     PCB* Next;
     PCB* Prev;
+
+    /* Stack pointer - r13 (PSP) */
+    Stack* PSP;
+
+	/* Process's ID*/
+	int PID;
+
+	/* Process's priority*/
+	int Priority;
 } ;
 
 #endif /* PROCESS_H_ */

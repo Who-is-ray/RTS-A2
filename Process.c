@@ -11,7 +11,8 @@
 
 #define PRIORITY_LIST_SIZE  6
 
-volatile PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE];
+// create and initialize priority list
+volatile PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 
 //*********To Remove**********//
@@ -46,6 +47,29 @@ void OutputNewLine()
 
 //*********End To Remove**********//
 
+void EnqueueProcess(PCB* pcb)
+{
+	if (PRIORITY_LIST[pcb->Priority] == NULL) // no process in the queue
+	{
+		PRIORITY_LIST[pcb->Priority] = pcb;
+		pcb->Next = pcb;
+		pcb->Prev = pcb;
+	}
+	else // add to existing queue
+	{
+		pcb->Prev = PRIORITY_LIST[pcb->Priority];
+		pcb->Next = PRIORITY_LIST[pcb->Priority]->Next;
+		PRIORITY_LIST[pcb->Priority]->Next->Prev = pcb;
+		PRIORITY_LIST[pcb->Priority]->Next = pcb;
+	}
+}
+
+void Terminate()
+{
+
+}
+
+// function of idle process
 void process_IDLE()
 {
     while(1)
@@ -57,10 +81,15 @@ void process_IDLE()
 
 int reg_process(void (*func_name)(), unsigned pid, unsigned priority)
 {
-	Stack* stack = (Stack*)malloc(sizeof(Stack));
-	PCB* pcb = (PCB*)malloc(sizeof(PCB));
-	pcb->PSP = stack;
-	pcb->PSP->PC = (unsigned long)func_name;
+	Stack* stack = (Stack*)malloc(sizeof(Stack)); // Allocate memory for stack
+	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
+	pcb->PSP = stack; // Set process's PSP point to stack
+	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC	
+	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+	pcb->PID = pid; // Assign ID
+	pcb->Priority = priority; // Assign priority
+	EnqueueProcess(pcb); // Add to queue
+
 	return TRUE;
 }
 
