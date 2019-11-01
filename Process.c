@@ -12,7 +12,7 @@
 #define PRIORITY_LIST_SIZE  6
 
 // create and initialize priority list
-volatile PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
+PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 
 //*********To Remove**********//
