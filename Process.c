@@ -44,23 +44,29 @@ void OutputNewLine()
     TransChar(LINE_FEED);
 }
 
-//*********To Remove**********//
+//*********End To Remove**********//
 
-
-void Initialize_Process()
-{
-    Stack* IDLE_stack = (Stack*)malloc(sizeof(Stack));
-    PCB* IDLE_PCB = (PCB*)malloc(sizeof(PCB));
-	IDLE_PCB->PSP = IDLE_stack;
-}
-
-void Process_IDLE()
+void process_IDLE()
 {
     while(1)
     {
         OutputString("Idle");
         OutputNewLine();
     }
+}
+
+int reg_process(void (*func_name)(), unsigned pid, unsigned priority)
+{
+	Stack* stack = (Stack*)malloc(sizeof(Stack));
+	PCB* pcb = (PCB*)malloc(sizeof(PCB));
+	pcb->PSP = stack;
+	pcb->PSP->PC = (unsigned long)func_name;
+	return TRUE;
+}
+
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0);
 }
 
 unsigned long get_PSP(void)
