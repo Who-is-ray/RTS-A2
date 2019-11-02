@@ -56,6 +56,7 @@ extern uint32_t __STACK_TOP;
 //*****************************************************************************
 extern void UART0_IntHandler(void); // Uart interrupt handler
 extern void SysTickHandler(void);   // Systick interrupt handler
+extern void SVCall(void);			// SVCall handler
 
 //*****************************************************************************
 //
@@ -79,7 +80,7 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
-    IntDefaultHandler,                      // SVCall handler
+	SVCall,									// SVCall handler
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
     IntDefaultHandler,                      // The PendSV handler

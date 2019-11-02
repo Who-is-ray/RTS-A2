@@ -27,6 +27,10 @@ unsigned long get_MSP(void);
 void set_MSP(volatile unsigned long);
 unsigned long get_SP();
 
+void EnqueueProcess(PCB* pcb);
+void DequeueProcess(PCB* pcb);
+PCB* FindNextProcessToRun();
+
 void volatile save_registers();
 void volatile restore_registers();
 
