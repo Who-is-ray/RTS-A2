@@ -18,6 +18,7 @@ struct KCallArgs
     int Arg2;
 };
 
+void KernelInitialization();
 int KC_GetID();
 void Terminate();
 

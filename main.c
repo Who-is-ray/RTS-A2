@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include "Process.h"
+#include "KernelCall.h"
 
 /* Initialization Uart, Systick and Queues
  * Enable interrupts*/
@@ -23,7 +24,7 @@ void Initialization()
 
     // To update
     Queue_Init();           // Initialize Queues
-
+    KernelInitialization(); // Initialize Kernel
 	enable();    // Enable Master (CPU) Interrupts
     //OutputString("> ");     // Output first pre-fix
 

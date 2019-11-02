@@ -64,15 +64,14 @@ void process_IDLE()
     }
 }
 
-int reg_process(void (*func_name)(), unsigned pid, unsigned priority)
+int reg_process(void (*func_name)(), int pid, int priority)
 {
-	Stack* stack = (Stack*)malloc(sizeof(Stack)); // Allocate memory for stack
-	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
-	pcb->PSP = stack; // Set process's PSP point to stack
-	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC	
-	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+	PCB* pcb = malloc(sizeof(PCB)); // Allocate memory for pcb
+	pcb->PSP = malloc(sizeof(Stack)); // Allocate memory for stack
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
+	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
+	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
 	EnqueueProcess(pcb); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 
@@ -82,9 +81,10 @@ int reg_process(void (*func_name)(), unsigned pid, unsigned priority)
 	return TRUE;
 }
 
+// Initialize all processes and force switch to thread mode
 void Initialize_Process()
 {
-	reg_process(process_IDLE, 0, 0);
+	reg_process(process_IDLE, 0, 0); // register idle process
 
 	FirstSVCall = TRUE;
 	SVC();
