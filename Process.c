@@ -9,10 +9,9 @@
 #include <stdlib.h>
 #include "process.h"
 #include "KernelCall.h"
+#include "Uart.h"
 
 #define PRIORITY_LIST_SIZE  6
-
-extern int FirstSVCall;
 
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -52,15 +51,37 @@ void OutputNewLine()
 
 //*********End To Remove**********//
 
+void process_1()
+{
+	while (1)
+	{
+	    //UART0_DR_R = 'x';
+	}
+}
 
+void process_2()
+{
+	while (1)
+	{
+	    //UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (1)
+	{
+	    //UART0_DR_R = 'z';
+	}
+}
 
 // function of idle process
 void process_IDLE()
 {
     while(1)
     {
-        OutputString("Idle");
-        OutputNewLine();
+        //OutputString("Idle");
+        //OutputNewLine();
     }
 }
 
@@ -70,6 +91,7 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PSP = malloc(sizeof(Stack)); // Allocate memory for stack
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
+	pcb->PSP->PSR = 0x01000000;
 	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
 	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
 	EnqueueProcess(pcb); // Add to queue
@@ -85,9 +107,10 @@ int reg_process(void (*func_name)(), int pid, int priority)
 void Initialize_Process()
 {
 	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 4); // register process 1
+	reg_process(process_2, 2, 4); // register process 1
+	reg_process(process_3, 3, 4); // register process 1
 
-	FirstSVCall = TRUE;
-	SVC();
 }
 
 // Enqueue process to queue

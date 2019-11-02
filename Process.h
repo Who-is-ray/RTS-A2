@@ -18,7 +18,7 @@
 
 #define MSP_RETURN 0xFFFFFFF9    //LR value: exception return using MSP as SP
 #define PSP_RETURN 0xFFFFFFFD    //LR value: exception return using PSP as SP
-typedef struct PCB PCB;
+typedef struct __PCB PCB;
 
 void set_LR(volatile unsigned long);
 unsigned long get_PSP();
@@ -65,7 +65,7 @@ typedef struct
 
 /* Process control block */
 
-struct PCB
+struct __PCB
 {
     /* Links to adjacent PCBs */
     PCB* Next;

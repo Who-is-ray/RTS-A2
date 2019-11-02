@@ -10,6 +10,8 @@
 #include "Queue.h"
 #include "Uart.h"
 
+#define NVIC_INT_CTRL_R (*((volatile unsigned long *) 0xE000ED04))
+#define TRIGGER_PENDSV 0x10000000
 #define CENTURY_LEAP_YEAR_PERIOD    400         // century leap year period
 #define LEAP_YEAR_PERIOD            4           // leap year period
 #define DEFAULT_YEAR                2019
@@ -70,8 +72,8 @@ void SysTickIntDisable(void)
 
 void SysTickHandler(void)
 {
-	// Process switch
-
+	// Process switch, trigger PendSV after this function
+	NVIC_INT_CTRL_R |= TRIGGER_PENDSV;
 
 	// Update to time server
     //EnQueue(INPUT, SYSTICK, NULL);

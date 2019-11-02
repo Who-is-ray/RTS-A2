@@ -16,19 +16,21 @@
 #include "Process.h"
 #include "KernelCall.h"
 
+extern int FirstSVCall;
+
 /* Initialization Uart, Systick and Queues
  * Enable interrupts*/
 void Initialization()
 {
-
-
     // To update
     Queue_Init();           // Initialize Queues
     KernelInitialization(); // Initialize Kernel
 	enable();    // Enable Master (CPU) Interrupts
-    //OutputString("> ");     // Output first pre-fix
+	Initialize_Process(); // Initialize all processes
 
-	Initialize_Process();
+	// Force to go thread mode
+	FirstSVCall = TRUE;
+	SVC();
 }
 
 void main (void)

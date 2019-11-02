@@ -89,13 +89,12 @@ void SVCHandler(Stack *argptr)
            should be increased by 8 * sizeof(unsigned int).
          * sp is increased because the stack runs from low to high memory.
         */
-        int a = 8 * sizeof(unsigned long);
-        set_PSP((unsigned long)(RUNNING -> PSP) + a);
+        set_PSP((unsigned long)(RUNNING -> PSP) + 8 * sizeof(unsigned long));
 
 		FirstSVCall = FALSE;
-        /* Start SysTick */
-		//SysTickInit();
 
+        /* Start SysTick */
+		SysTickInit();
         /*
          - Change the current LR to indicate return to Thread mode using the PSP
          - Assembler required to change LR to FFFF.FFFD (Thread/PSP)

@@ -21,7 +21,7 @@
 #define ST_CTRL_ENABLE      0x00000001  // Enable for STCTRL
 
 // Maximum period
-#define MAX_WAIT            0xF42400     // 1/100 second
+#define MAX_WAIT            0x186A00     // 1/100 second
 
 #define MAX_T_SEC           9           // max value of 1/10 second
 #define MAX_SEC             59          // max value of second
