@@ -57,6 +57,7 @@ extern uint32_t __STACK_TOP;
 extern void UART0_IntHandler(void); // Uart interrupt handler
 extern void SysTickHandler(void);   // Systick interrupt handler
 extern void SVCall(void);			// SVCall handler
+extern void PendSV_Handler(void);	// PendSV handler
 
 //*****************************************************************************
 //
@@ -83,7 +84,7 @@ void (* const g_pfnVectors[])(void) =
 	SVCall,									// SVCall handler
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
-    IntDefaultHandler,                      // The PendSV handler
+	PendSV_Handler,							// The PendSV handler
     SysTickHandler,                         // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B

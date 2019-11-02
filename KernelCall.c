@@ -8,6 +8,21 @@
 #include <stdio.h>
 #include "KernelCall.h"
 #include "Process.h"
+#include "Uart.h"
+
+#define NVIC_SYS_PRI3_R (*((volatile unsigned long *) 0xE000ED20))
+#define PENDSV_LOWEST_PRIORITY 0x00E00000
+
+void KernelInitialization()
+{
+	/* Initialize UART */
+	UART0_Init();           // Initialize UART0
+	InterruptEnable(INT_VEC_UART0);       // Enable UART0 interrupts
+	UART0_IntEnable(UART_INT_RX | UART_INT_TX); // Enable Receive and Transmit interrupts
+
+	// set PendSV priority
+	NVIC_SYS_PRI3_R |= PENDSV_LOWEST_PRIORITY;
+}
 
 void assignR7(volatile unsigned long data)
 {

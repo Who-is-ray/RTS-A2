@@ -127,7 +127,12 @@ void SVCHandler(Stack *argptr)
 		}
 		case TERMINATE:
 		{
-			PCB* nextRun = FindNextProcessToRun();
+			PCB* nextRun;
+			if (RUNNING == RUNNING->Next) // the only process in the queue
+				nextRun = CheckLowerPriorityProcess(); // chech lowere priority queue
+			else
+				nextRun = RUNNING->Next;
+
 			DequeueProcess(RUNNING);
 
 			free(RUNNING->PSP); // free the stack
@@ -142,4 +147,15 @@ void SVCHandler(Stack *argptr)
 
     }
 
+}
+
+void PendSV_Handler()
+{
+	/* Save running process */
+	save_registers(); /* Save active CPU registers in PCB */
+
+	// get next running process
+	RUNNING = RUNNING->Next;
+
+	restore_registers(); /* Restore process¡¯s registers */
 }

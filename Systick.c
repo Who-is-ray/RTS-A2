@@ -6,6 +6,7 @@
  */
 
 #include "Systick.h"
+#include "Process.h"
 #include "Queue.h"
 #include "Uart.h"
 
@@ -69,7 +70,11 @@ void SysTickIntDisable(void)
 
 void SysTickHandler(void)
 {
-    EnQueue(INPUT, SYSTICK, NULL);
+	// Process switch
+
+
+	// Update to time server
+    //EnQueue(INPUT, SYSTICK, NULL);
 }
 
 void SysTickInit()

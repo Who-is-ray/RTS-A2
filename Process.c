@@ -120,21 +120,16 @@ void DequeueProcess(PCB* pcb)
 	}
 }
 
-// return pcb pointer of next process to run
-PCB* FindNextProcessToRun()
+// return pcb pointer of next process to run, next process can not be itself
+PCB* CheckLowerPriorityProcess()
 {
-	if (RUNNING->Next == RUNNING) // if is the only process in the queue
+	int i;
+	for (i = RUNNING->Priority - 1; i >= 0; i--) // check lower priority
 	{
-		int i;
-		for (i = RUNNING->Priority - 1; i >= 0; i--) // check lower priority
-		{
-			if (PRIORITY_LIST[i] != NULL)
-				return PRIORITY_LIST[i];
-		}
-		return NULL; // return null if no process left, includes idle process
+		if (PRIORITY_LIST[i] != NULL)
+			return PRIORITY_LIST[i];
 	}
-	else
-		return RUNNING->Next;
+	return NULL; // return null if no process left, includes idle process
 }
 
 unsigned long get_PSP(void)
