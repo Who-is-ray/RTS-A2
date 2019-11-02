@@ -157,5 +157,6 @@ void PendSV_Handler()
 	// get next running process
 	RUNNING = RUNNING->Next;
 
+	set_PSP((unsigned long)(RUNNING->PSP));
 	restore_registers(); /* Restore process¡¯s registers */
 }

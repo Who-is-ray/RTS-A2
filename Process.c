@@ -12,6 +12,7 @@
 #include "Uart.h"
 
 #define PRIORITY_LIST_SIZE  6
+#define PSR_INITIAL_VAL		0x01000000
 
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -91,7 +92,7 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PSP = malloc(sizeof(Stack)); // Allocate memory for stack
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
-	pcb->PSP->PSR = 0x01000000;
+	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
 	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
 	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
 	EnqueueProcess(pcb); // Add to queue

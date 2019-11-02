@@ -18,27 +18,16 @@
 
 extern int FirstSVCall;
 
-/* Initialization Uart, Systick and Queues
- * Enable interrupts*/
-void Initialization()
+void main (void)
 {
-    // To update
-    Queue_Init();           // Initialize Queues
-    KernelInitialization(); // Initialize Kernel
+	/* Initialization Uart, Systick and Queues. Enable interrupts*/
+	// To update
+	Queue_Init();           // Initialize Queues
+	KernelInitialization(); // Initialize Kernel
 	enable();    // Enable Master (CPU) Interrupts
 	Initialize_Process(); // Initialize all processes
 
 	// Force to go thread mode
 	FirstSVCall = TRUE;
 	SVC();
-}
-
-void main (void)
-{
-    Initialization();
-
-    /* From A1
-    while(1)
-        CheckInputQueue();
-    */
 }
