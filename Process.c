@@ -90,13 +90,28 @@ void process_IDLE()
 
 int reg_process(void (*func_name)(), int pid, int priority)
 {
-	PCB* pcb = malloc(sizeof(PCB)); // Allocate memory for pcb
-	pcb->PSP = malloc(sizeof(Stack)); // Allocate memory for stack
+    Stack* stack = (Stack*)malloc(STACKSIZE); // Allocate memory for stack
+    stack->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
+    stack->PC = (unsigned long)func_name; // Assign process's function to PC
+    stack->LR = (unsigned long)Terminate; // Assign terminate function to LR
+    stack->R0 = NULL;
+    stack->R1 = NULL;
+    stack->R2 = NULL;
+    stack->R3 = NULL;
+    stack->R4 = NULL;
+    stack->R5 = NULL;
+    stack->R6 = NULL;
+    stack->R7 = NULL;
+    stack->R8 = NULL;
+    stack->R9 = NULL;
+    stack->R10 = NULL;
+    stack->R11 = NULL;
+    stack->R12 = NULL;
+
+	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
-	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
-	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
-	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+	pcb->PSP = stack;
 	EnqueueProcess(pcb); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 

@@ -43,7 +43,6 @@ int GetID()
 	SVC();
 
     return getidarg.RtnValue;
-
 }
 
 void Terminate()

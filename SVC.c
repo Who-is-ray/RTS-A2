@@ -89,7 +89,7 @@ void SVCHandler(Stack *argptr)
            should be increased by 8 * sizeof(unsigned int).
          * sp is increased because the stack runs from low to high memory.
         */
-        set_PSP((unsigned long)(RUNNING -> PSP) + 8 * sizeof(unsigned long));
+        set_PSP((unsigned long)(RUNNING -> PSP) + (8 * sizeof(unsigned long)));
 
 		FirstSVCall = FALSE;
 
@@ -127,18 +127,20 @@ void SVCHandler(Stack *argptr)
 		}
 		case TERMINATE:
 		{
-			PCB* nextRun;
+			PCB* terminated = RUNNING;
 			if (RUNNING == RUNNING->Next) // the only process in the queue
-				nextRun = CheckLowerPriorityProcess(); // chech lowere priority queue
+			    RUNNING = CheckLowerPriorityProcess(); // chech lowere priority queue
 			else
-				nextRun = RUNNING->Next;
+			    RUNNING = RUNNING->Next;
 
-			DequeueProcess(RUNNING);
+			set_PSP((unsigned long)(RUNNING->PSP));
 
-			free(RUNNING->PSP); // free the stack
-			free(RUNNING);	// free the pcb
+			DequeueProcess(terminated);
 
-			RUNNING = nextRun;
+			Stack* stack = terminated->PSP;
+			//free(terminated);	// free the pcb
+			//free(stack); // free the stack
+
 			break;
 		}
         default:
