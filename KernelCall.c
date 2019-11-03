@@ -54,5 +54,13 @@ void Terminate()
 	/* Assign address if getidarg to R7 */
 	assignR7((unsigned long)&getidarg);
 
+	/* For terminate first process, process_1, which has psp address 0x20010090, 
+	the cpu psp register here should be the address point to the bottom of stack, 
+	which should be psr-4, which equal to 0x200100D0. The actual value of psp here 
+	is incorrect, so psp cannot be read correctly in SVC. Not sure why. When call 
+	functions, psp changes? When leaving from process_1, psp changes from incorrect
+	to correct. */
+
+
 	SVC();
 }
