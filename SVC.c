@@ -144,9 +144,7 @@ void SVCHandler(Stack *argptr)
         default:
             kcaptr -> RtnValue = -1;
         }
-
     }
-
 }
 
 void PendSV_Handler()

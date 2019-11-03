@@ -18,7 +18,7 @@
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 // RUNNING Pcb
-PCB* RUNNING = NULL;
+volatile PCB* RUNNING = NULL;
 
 //*********To Remove**********//
 #include "Queue.h"
@@ -54,17 +54,19 @@ void OutputNewLine()
 
 void process_1()
 {
-	while (1)
+	int i;
+	for (i=0; i < 200; i++)
 	{
-	    //UART0_DR_R = 'x';
+	    UART0_DR_R = 'x';
 	}
+	i = 0;
 }
 
 void process_2()
 {
 	while (1)
 	{
-	    //UART0_DR_R = 'y';
+	    UART0_DR_R = 'y';
 	}
 }
 
@@ -72,7 +74,7 @@ void process_3()
 {
 	while (1)
 	{
-	    //UART0_DR_R = 'z';
+	    UART0_DR_R = 'z';
 	}
 }
 
@@ -139,6 +141,8 @@ void DequeueProcess(PCB* pcb)
 		PRIORITY_LIST[pcb->Priority] = NULL;
 	else // not the only process in the queue
 	{
+		if (PRIORITY_LIST[pcb->Priority] == pcb) // if is the head of queue
+			PRIORITY_LIST[pcb->Priority] = pcb->Next; // update queue
 		pcb->Prev->Next = pcb->Next;
 		pcb->Next->Prev = pcb->Prev;
 	}
