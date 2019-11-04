@@ -13,7 +13,7 @@
 
 #define PRIORITY_LIST_SIZE  6
 #define PSR_INITIAL_VAL		0x01000000
-
+#define INITIAL_STACK_TOP_OFFSET    960
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
@@ -94,29 +94,14 @@ void process_IDLE()
 
 int reg_process(void (*func_name)(), int pid, int priority)
 {
-    //Stack* stack = (Stack*)malloc(STACKSIZE); // Allocate memory for stack
-    //stack->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
-    //stack->PC = (unsigned long)func_name; // Assign process's function to PC
-    //stack->LR = (unsigned long)Terminate; // Assign terminate function to LR
-    //stack->R0 = NULL;
-    //stack->R1 = NULL;
-    //stack->R2 = NULL;
-    //stack->R3 = NULL;
-    //stack->R4 = NULL;
-    //stack->R5 = NULL;
-    //stack->R6 = NULL;
-    //stack->R7 = NULL;
-    //stack->R8 = NULL;
-    //stack->R9 = NULL;
-    //stack->R10 = NULL;
-    //stack->R11 = NULL;
-    //stack->R12 = NULL;
-
 	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
 	pcb->StackTop = malloc(STACKSIZE);
-	pcb->PSP = (Stack*)((unsigned long)pcb->StackTop + 960);
+
+	// Stack should grow from bottom
+	pcb->PSP = (Stack*)((unsigned long)pcb->StackTop + INITIAL_STACK_TOP_OFFSET);
+
 	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
 	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
 	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR

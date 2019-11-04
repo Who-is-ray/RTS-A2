@@ -173,7 +173,7 @@ void PendSV_Handler()
 {
     PENDSV_ON = TRUE;
 
-	RUNNING->PSP = (Stack*)(get_PSP()-32);
+	RUNNING->PSP = (Stack*)(get_PSP()-NUM_OF_SW_PUSH_REG*sizeof(unsigned long));
 
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
