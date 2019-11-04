@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "process.h"
 #include "KernelCall.h"
-
+#include "Message.h"
 extern void SysTickInit();
 
 extern PCB* RUNNING;
@@ -74,7 +74,15 @@ void SVCHandler(Stack *argptr)
        Handler mode and uses the MSP
      */
     struct KCallArgs *kcaptr;
-
+    /*structures for pkcalls*/
+   /* struct krequest  *arglistprt;
+    struct Send_Recv_args *SR_arg_ptr;
+    unsigned int dst;
+    unsigned int from;
+    void *msg_ptr;
+    unsigned int size;
+    int rtncode;
+    arglistptr=(struct krequest *)argptr->r7;*/
     if (FirstSVCall)
     {
         /*
@@ -142,7 +150,6 @@ void SVCHandler(Stack *argptr)
 			break;
 		}
 		case SEND:
-
 		    break;
 		case RECEIVE:
 
