@@ -8,6 +8,8 @@
 #include "Message.h"
 #include "Process.h"
 #define max_Mailbox 10
+#define Time_sever_mailbox 9
+#define Uart_output_mailbox 8
 struct mailbox_list mbx[max_Mailbox];
 struct __message*head=NULL;
 struct __message*current,*prev;

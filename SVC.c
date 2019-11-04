@@ -141,6 +141,15 @@ void SVCHandler(Stack *argptr)
 			RUNNING = nextRun;
 			break;
 		}
+		case SEND:
+
+		    break;
+		case RECEIVE:
+
+		    break;
+		case BIND:
+
+		    break;
         default:
             kcaptr -> RtnValue = -1;
         }
