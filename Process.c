@@ -59,11 +59,11 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
-	/*Nice(5);
+	Nice(5);
 	while(1)
 	{
 		UART0_DR_R = '1';
-	}*/
+	}
 }
 
 void process_2()
