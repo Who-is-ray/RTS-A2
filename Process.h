@@ -79,6 +79,8 @@ struct __PCB
 
     /* Stack pointer - r13 (PSP) */
     Stack* PSP;
+
+    void* StackTop;
 } ;
 
 #endif /* PROCESS_H_ */

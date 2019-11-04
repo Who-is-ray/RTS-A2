@@ -19,7 +19,7 @@
 extern int FirstSVCall;
 
 void main (void)
-{
+ {
 	/* Initialization Uart, Systick and Queues. Enable interrupts*/
 	// To update
 	Queue_Init();           // Initialize Queues

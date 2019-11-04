@@ -14,6 +14,7 @@
 extern void SysTickInit();
 
 extern PCB* RUNNING;
+extern int PENDSV_ON;
 
 volatile int FirstSVCall = FALSE;
 
@@ -129,7 +130,7 @@ void SVCHandler(Stack *argptr)
 		{
 			PCB* terminated = RUNNING;
 			if (RUNNING == RUNNING->Next) // the only process in the queue
-			    RUNNING = CheckLowerPriorityProcess(); // chech lowere priority queue
+			    RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
 			else
 			    RUNNING = RUNNING->Next;
 
@@ -137,9 +138,28 @@ void SVCHandler(Stack *argptr)
 
 			DequeueProcess(terminated);
 
-			Stack* stack = terminated->PSP;
-			//free(terminated);	// free the pcb
-			//free(stack); // free the stack
+			free(terminated->StackTop); // free the stack
+			free(terminated);	// free the pcb
+
+			break;
+		}
+		case NICE:
+		{
+			int old_priority = RUNNING->Priority;
+			int new_priority = kcaptr->Arg1;
+
+			DequeueProcess(RUNNING); // Dequeue from old priority queue
+			RUNNING->Priority = new_priority; // assign new priority
+			EnqueueProcess(RUNNING); // Enqueue to new priority queue
+
+			if (new_priority<old_priority)
+			{
+				RUNNING = CheckLowerPriorityProcess(old_priority);
+				set_PSP((unsigned long)(RUNNING->PSP));
+			}
+
+
+			kcaptr->RtnValue = TRUE;
 
 			break;
 		}
@@ -151,6 +171,10 @@ void SVCHandler(Stack *argptr)
 
 void PendSV_Handler()
 {
+    PENDSV_ON = TRUE;
+
+	RUNNING->PSP = (Stack*)(get_PSP()-32);
+
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
 
@@ -159,4 +183,6 @@ void PendSV_Handler()
 
 	set_PSP((unsigned long)(RUNNING->PSP));
 	restore_registers(); /* Restore process¡¯s registers */
+
+	PENDSV_ON = FALSE;
 }

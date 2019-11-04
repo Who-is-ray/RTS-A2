@@ -54,12 +54,16 @@ void OutputNewLine()
 
 void process_1()
 {
-	int i;
-	for (i=0; i < 200; i++)
+    unsigned int i;
+	for (i=0; i < 20000; i++)
 	{
 	    UART0_DR_R = 'x';
 	}
-	i = 0;
+	/*Nice(5);
+	while(1)
+	{
+		UART0_DR_R = '1';
+	}*/
 }
 
 void process_2()
@@ -90,28 +94,45 @@ void process_IDLE()
 
 int reg_process(void (*func_name)(), int pid, int priority)
 {
-    Stack* stack = (Stack*)malloc(STACKSIZE); // Allocate memory for stack
-    stack->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
-    stack->PC = (unsigned long)func_name; // Assign process's function to PC
-    stack->LR = (unsigned long)Terminate; // Assign terminate function to LR
-    stack->R0 = NULL;
-    stack->R1 = NULL;
-    stack->R2 = NULL;
-    stack->R3 = NULL;
-    stack->R4 = NULL;
-    stack->R5 = NULL;
-    stack->R6 = NULL;
-    stack->R7 = NULL;
-    stack->R8 = NULL;
-    stack->R9 = NULL;
-    stack->R10 = NULL;
-    stack->R11 = NULL;
-    stack->R12 = NULL;
+    //Stack* stack = (Stack*)malloc(STACKSIZE); // Allocate memory for stack
+    //stack->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
+    //stack->PC = (unsigned long)func_name; // Assign process's function to PC
+    //stack->LR = (unsigned long)Terminate; // Assign terminate function to LR
+    //stack->R0 = NULL;
+    //stack->R1 = NULL;
+    //stack->R2 = NULL;
+    //stack->R3 = NULL;
+    //stack->R4 = NULL;
+    //stack->R5 = NULL;
+    //stack->R6 = NULL;
+    //stack->R7 = NULL;
+    //stack->R8 = NULL;
+    //stack->R9 = NULL;
+    //stack->R10 = NULL;
+    //stack->R11 = NULL;
+    //stack->R12 = NULL;
 
 	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
-	pcb->PSP = stack;
+	pcb->StackTop = malloc(STACKSIZE);
+	pcb->PSP = (Stack*)((unsigned long)pcb->StackTop + 960);
+	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
+	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
+	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+	pcb->PSP->R0 = NULL;
+	pcb->PSP->R1 = NULL;
+	pcb->PSP->R2 = NULL;
+	pcb->PSP->R3 = NULL;
+	pcb->PSP->R4 = NULL;
+	pcb->PSP->R5 = NULL;
+	pcb->PSP->R6 = NULL;
+	pcb->PSP->R7 = NULL;
+	pcb->PSP->R8 = NULL;
+	pcb->PSP->R9 = NULL;
+	pcb->PSP->R10 = NULL;
+	pcb->PSP->R11 = NULL;
+	pcb->PSP->R12 = NULL;
 	EnqueueProcess(pcb); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 
@@ -163,11 +184,11 @@ void DequeueProcess(PCB* pcb)
 	}
 }
 
-// return pcb pointer of next process to run, next process can not be itself
-PCB* CheckLowerPriorityProcess()
+// return pcb pointer of the first process below input priority
+PCB* CheckLowerPriorityProcess(int priority)
 {
 	int i;
-	for (i = RUNNING->Priority - 1; i >= 0; i--) // check lower priority
+	for (i = priority - 1; i >= 0; i--) // check lower priority
 	{
 		if (PRIORITY_LIST[i] != NULL)
 			return PRIORITY_LIST[i];
