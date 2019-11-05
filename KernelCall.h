@@ -15,7 +15,8 @@ typedef enum
 	TERMINATE,
 	SEND,
 	RECEIVE,
-	BIND
+	BIND,
+	UNBIND
 }KernelCallCode;
 
 struct KCallArgs

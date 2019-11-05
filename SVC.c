@@ -199,6 +199,22 @@ void SVCHandler(Stack *argptr)
 				kcaptr->RtnValue = ERROR;
 			break;
 		}
+		case UNBIND:
+		{
+			int mailbox_to_unbind = kcaptr->Arg1;
+			if (MAILBOXLIST[mailbox_to_unbind].Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
+			{
+				MAILBOXLIST[mailbox_to_unbind].Owner = NULL;
+				EnqueueToAvailableMbx(&MAILBOXLIST[mailbox_to_unbind]);
+			}
+			else
+				kcaptr->RtnValue = ERROR;
+		}
+		case SEND:
+		{
+
+		}
+
         default:
             kcaptr -> RtnValue = ERROR;
         }

@@ -59,3 +59,20 @@ int Bind(int mbx)
 
 	return args.RtnValue;
 }
+
+int Unbind(int mbx)
+{
+	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
+
+	// pass code and mailbox number to bind to kernel
+	args.Code = UNBIND;
+	args.Arg1 = mbx;
+
+	/* Assign address if getidarg to R7 */
+	AssignR7((unsigned long)&args);
+
+	// Call Kernel
+	SVC();
+
+	return args.RtnValue;
+}
