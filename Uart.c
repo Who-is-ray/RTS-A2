@@ -94,4 +94,29 @@ void InterruptMasterDisable(void)
     /* disable CPU interrupts */
     __asm(" cpsid   i");
 }
-
+void process_uart_output_ch(int row,int col,char c){
+    //output a single character to specified screen position
+    //cup is cursor position
+    struct CUPch uart_data;
+    uart_data.esc=ESC;
+    uart_data.line[0]='0'+row/10;
+    uart_date.line[1]='0'+row%10;
+    uart_data.semicolon=';';
+    uart_data.col[0]='0'+col/10;
+    uart_data.col[1]='0'+col%10;
+    uart_data.ch=ch;
+    //return; either return from pkcall, or from arg and arg needs to be add the return element.
+}
+void output_char(void){
+    int row=0;
+    int col=0;
+    volatile char ch;
+    while(1){
+        //receive from mail box
+        //either mbx is not empty and send or mbx is empty blocked.
+        /*
+         * code
+         */
+        uart_output_char(row,col,ch);
+    }
+}
