@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "process.h"
 #include "KernelCall.h"
+#include "PKCall.h"
 #include "Uart.h"
 
 #define PRIORITY_LIST_SIZE  6
@@ -59,6 +60,8 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
+	Bind(-1);
+	Bind(0);
 	Nice(5);
 	while(1)
 	{
@@ -105,6 +108,8 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
 	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
 	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+
+	// Assign all other registers to null
 	pcb->PSP->R0 = NULL;
 	pcb->PSP->R1 = NULL;
 	pcb->PSP->R2 = NULL;

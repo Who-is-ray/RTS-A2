@@ -10,6 +10,7 @@
 
 #define TRUE    1
 #define FALSE   0
+#define ERROR	-1
 #define PRIVATE static
 
 #define SVC()   __asm(" SVC #0")
@@ -81,6 +82,7 @@ struct __PCB
     /* Stack pointer - r13 (PSP) */
     Stack* PSP;
 
+	/* Pointer to the top of reserved stack, for release memeory using*/
     void* StackTop;
 } ;
 

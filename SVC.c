@@ -8,13 +8,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "process.h"
 #include "KernelCall.h"
+#include "PKCall.h"
+#include "Message.h"
+
+#define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
 
 extern void SysTickInit();
 
 extern PCB* RUNNING;
 extern int PENDSV_ON;
+extern Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
+extern Mailbox* AVAILABLE_MAILBOX;
 
 volatile int FirstSVCall = FALSE;
 
@@ -119,6 +124,7 @@ void SVCHandler(Stack *argptr)
          */
 
         kcaptr = (struct KCallArgs *) argptr -> R7;
+		RUNNING->PSP = (Stack*)get_PSP();
         switch(kcaptr -> Code)
         {
         case GETID:
@@ -158,13 +164,43 @@ void SVCHandler(Stack *argptr)
 				set_PSP((unsigned long)(RUNNING->PSP));
 			}
 
-
 			kcaptr->RtnValue = TRUE;
 
 			break;
 		}
+		case BIND:
+		{
+			int mailbox_to_bind = kcaptr->Arg1;
+
+			if (mailbox_to_bind < MAILBOXLIST_SIZE) // if mailbox number is legal
+			{
+				if (mailbox_to_bind == ANYMAILBOX) // bind any mailbox
+				{
+					if (AVAILABLE_MAILBOX == NULL) // no available mailbox
+						kcaptr->RtnValue = ERROR;
+					else
+					{
+						AVAILABLE_MAILBOX->Owner = RUNNING; // assign new owner
+						DequeueFromAvailableMbx(AVAILABLE_MAILBOX); // dequeue from available list
+					}
+				}
+				else
+				{
+					if (MAILBOXLIST[mailbox_to_bind].Owner == NULL) // if mailbox is available
+					{
+						MAILBOXLIST[mailbox_to_bind].Owner = RUNNING; // assign new owner
+						DequeueFromAvailableMbx(AVAILABLE_MAILBOX); // dequque from available list
+					}
+					else
+						kcaptr->RtnValue = ERROR;
+				}
+			}
+			else
+				kcaptr->RtnValue = ERROR;
+			break;
+		}
         default:
-            kcaptr -> RtnValue = -1;
+            kcaptr -> RtnValue = ERROR;
         }
     }
 }
@@ -173,15 +209,18 @@ void PendSV_Handler()
 {
     PENDSV_ON = TRUE;
 
-	RUNNING->PSP = (Stack*)(get_PSP()-NUM_OF_SW_PUSH_REG*sizeof(unsigned long));
+	//RUNNING->PSP = (Stack*)(get_PSP()-NUM_OF_SW_PUSH_REG*sizeof(unsigned long));
 
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
 
+	RUNNING->PSP = (Stack*)get_PSP();
 	// get next running process
 	RUNNING = RUNNING->Next;
 
+	// Update PSP value
 	set_PSP((unsigned long)(RUNNING->PSP));
+
 	restore_registers(); /* Restore process¡¯s registers */
 
 	PENDSV_ON = FALSE;

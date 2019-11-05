@@ -10,10 +10,12 @@
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
 
+#define MAILBOXLIST_SIZE	32
+
 typedef struct __Message Message;
 typedef struct __Mailbox Mailbox;
 
-void IntializeMailboxList();
+void MailboxListIntialization();
 void EnqueueToAvailableMbx(Mailbox* Mbx);
 void DequeueFromAvailableMbx(Mailbox* Mbx);
 
@@ -36,7 +38,7 @@ struct __Message
 // Structure of Mailbox
 struct __Mailbox
 {
-	// Links to adjacent Mailboxs which bound to the same process
+	// Links to adjacent Mailboxs when mailbox in available list
 	Mailbox* Next;
 	Mailbox* Prev;
 

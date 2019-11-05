@@ -8,6 +8,10 @@
 #ifndef PKCALL_H_
 #define PKCALL_H_
 
+void Send(int recver, int sender, void* msg, int* size);
+void Receive(int recver, int* sender, void* msg, int* size);
+int Bind(int mbx);
+
 // Structure of send 
 typedef struct
 {
@@ -21,7 +25,7 @@ typedef struct
 	void* Msg_addr;
 
 	// Size of message, number of bytes
-	int Size;
+	int* Size;
 } SendMsgArgs;
 
 // Structure of send 
@@ -37,7 +41,7 @@ typedef struct
 	void* Msg_addr;
 
 	// Size of message, number of bytes
-	int Size;
+	int* Size;
 } RecvMsgArgs;
 
 #endif /* PKCALL_H_ */
