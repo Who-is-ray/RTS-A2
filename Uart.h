@@ -67,5 +67,16 @@ void UART0_IntDisable(unsigned long flags);
 void UART0_IntHandler(void);
 void InterruptMasterEnable(void);
 void InterruptMasterDisable(void);
-
+#define max_line 24
+#define max_col 80
+struct CUPch
+{
+    char esc;
+    char line[2];//1-24
+    char semicolon;
+    char col[2];//1-80
+    char ch;
+    char nul;
+};
+extern int output_char(int row, int col, char ch);
 #endif /* UART_H_ */
