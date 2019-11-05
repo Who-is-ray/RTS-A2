@@ -60,8 +60,8 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
-	//Bind(-1);
-	//Bind(0);
+	Bind(-1);
+	Bind(0);
 	Nice(5);
 	while(1)
 	{
@@ -101,6 +101,8 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
 	pcb->StackTop = malloc(STACKSIZE);
+	pcb->Msg_Wait = NULL; // clear message wait
+	pcb->Mailbox_Head = NULL; // clear mailbox head
 
 	// Stack should grow from bottom
 	pcb->PSP = (Stack*)((unsigned long)pcb->StackTop + INITIAL_STACK_TOP_OFFSET);
@@ -123,6 +125,7 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PSP->R10 = NULL;
 	pcb->PSP->R11 = NULL;
 	pcb->PSP->R12 = NULL;
+
 	EnqueueProcess(pcb); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 

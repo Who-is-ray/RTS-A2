@@ -84,6 +84,15 @@ struct __PCB
 
 	/* Pointer to the top of reserved stack, for release memeory using*/
     void* StackTop;
+
+	/* The head of mailbox, Mailbox pointer*/
+	void* Mailbox_Head;
+
+	/* Waiting mailbox number for unblock*/
+	int Mailbox_Wait;
+
+	/* Waiting message info*/
+	void* Msg_Wait;
 } ;
 
 #endif /* PROCESS_H_ */

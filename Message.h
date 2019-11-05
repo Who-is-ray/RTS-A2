@@ -5,8 +5,6 @@
  *      Author: Ray
  */
 
-#include "Process.h"
-
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
 
@@ -16,8 +14,8 @@ typedef struct __Message Message;
 typedef struct __Mailbox Mailbox;
 
 void MailboxListIntialization();
-void EnqueueToAvailableMbx(Mailbox* Mbx);
-void DequeueFromAvailableMbx(Mailbox* Mbx);
+void EnqueueMbxToQueue(Mailbox* mbx, Mailbox** queue_head);
+void DequeueMbxFromQueue(Mailbox* mbx, Mailbox** queue_head);
 
 // stucture of Message
 struct __Message
@@ -48,8 +46,8 @@ struct __Mailbox
 	// Pointer of the last message in the mailbox
 	Message* Last_Message;
 
-	// Owner of the mailbox
-	PCB* Owner;
+	// Owner of the mailbox, PCB pointer
+	void* Owner;
 };
 
 #endif /* MESSAGE_H_ */

@@ -15,57 +15,59 @@
 Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
 Mailbox* AVAILABLE_MAILBOX = NULL;
 
-void EnqueueToAvailableMbx(Mailbox* Mbx)
+void EnqueueMbxToQueue(Mailbox* mbx, Mailbox** queue_head)
 {
-	if (AVAILABLE_MAILBOX == NULL) // if has no item in the queue
+	Mailbox* head = *queue_head;
+	if (head == NULL) // if has no item in the queue
 	{
-		AVAILABLE_MAILBOX = Mbx;
-		Mbx->Next = Mbx;
-		Mbx->Prev = Mbx;
+		head = mbx;
+		mbx->Next = mbx;
+		mbx->Prev = mbx;
 	}
 	else // insert after the first item
 	{
-		Mbx->Prev = AVAILABLE_MAILBOX;
-		Mbx->Next = AVAILABLE_MAILBOX->Next;
-		AVAILABLE_MAILBOX->Next->Prev = Mbx;
-		AVAILABLE_MAILBOX->Next = Mbx;
+		mbx->Prev = AVAILABLE_MAILBOX;
+		mbx->Next = AVAILABLE_MAILBOX->Next;
+		AVAILABLE_MAILBOX->Next->Prev = mbx;
+		AVAILABLE_MAILBOX->Next = mbx;
 	}
 
 	// clear the owner
-	Mbx->Owner = NULL;
+	mbx->Owner = NULL;
 
 	// clear last message pointer
-	Mbx->Last_Message = NULL;
+	mbx->Last_Message = NULL;
 
 	// release all message
-	while (Mbx->First_Message != NULL)
+	while (mbx->First_Message != NULL)
 	{
-		Message* next = Mbx->First_Message->Next;
-		free(Mbx->First_Message);
-		Mbx->First_Message = next;
+		Message* next = mbx->First_Message->Next;
+		free(mbx->First_Message);
+		mbx->First_Message = next;
 	}
 }
 
-void DequeueFromAvailableMbx(Mailbox* Mbx)
+void DequeueMbxFromQueue(Mailbox* mbx, Mailbox** queue_head)
 {
-	if (AVAILABLE_MAILBOX->Next == NULL) // if is the only mailbox in the queue
+	Mailbox* head = *queue_head;
+	if (head->Next == NULL) // if is the only mailbox in the queue
 	{
-		Mbx->Next = NULL;
-		Mbx->Prev = NULL;
-		AVAILABLE_MAILBOX = NULL;
+		mbx->Next = NULL;
+		mbx->Prev = NULL;
+		head = NULL;
 	}
 	else // remove from the queue
 	{
-	    if(AVAILABLE_MAILBOX == Mbx) // if is the head of queue
-	        AVAILABLE_MAILBOX = AVAILABLE_MAILBOX->Next; // update the head
+	    if(head == mbx) // if is the head of queue
+			head = head->Next; // update the head
 
 		// change the queue link
-		Mbx->Next->Prev = Mbx->Prev;
-		Mbx->Prev->Next = Mbx->Next;
+		mbx->Next->Prev = mbx->Prev;
+		mbx->Prev->Next = mbx->Next;
 		
 		// clear mailbox value
-		Mbx->Next = NULL;
-		Mbx->Prev = NULL;
+		mbx->Next = NULL;
+		mbx->Prev = NULL;
 	}
 }
 
@@ -73,7 +75,7 @@ void MailboxListIntialization()
 {
 	int i;
 	for (i = 0; i < MAILBOXLIST_SIZE; i++)
-	    EnqueueToAvailableMbx(&MAILBOXLIST[i]); // Add to Available maibox list
+	    EnqueueMbxToQueue(&MAILBOXLIST[i],&AVAILABLE_MAILBOX); // Add to Available maibox list
 }
 
 #endif /* MESSAGE_C_ */

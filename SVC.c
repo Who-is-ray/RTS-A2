@@ -8,9 +8,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "KernelCall.h"
 #include "PKCall.h"
 #include "Message.h"
+#include "Process.h"
 
 #define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
 
@@ -180,16 +182,20 @@ void SVCHandler(Stack *argptr)
 						kcaptr->RtnValue = ERROR;
 					else
 					{
-						AVAILABLE_MAILBOX->Owner = RUNNING; // assign new owner
-						DequeueFromAvailableMbx(AVAILABLE_MAILBOX); // dequeue from available list
+						Mailbox* mbx = AVAILABLE_MAILBOX;
+						mbx->Owner = RUNNING; // assign new owner
+						DequeueMbxFromQueue(mbx, AVAILABLE_MAILBOX); // dequeue from available list
+						EnqueueMbxToQueue(mbx, RUNNING->Mailbox_Head); // enqueue owner's mailbox queue
 					}
 				}
 				else
 				{
 					if (MAILBOXLIST[mailbox_to_bind].Owner == NULL) // if mailbox is available
 					{
-						MAILBOXLIST[mailbox_to_bind].Owner = RUNNING; // assign new owner
-						DequeueFromAvailableMbx(AVAILABLE_MAILBOX); // dequque from available list
+						Mailbox* mbx = &MAILBOXLIST[mailbox_to_bind];
+						mbx->Owner = RUNNING; // assign new owner
+						DequeueMbxFromQueue(mbx, AVAILABLE_MAILBOX); // dequque from available list
+						EnqueueMbxToQueue(mbx, RUNNING->Mailbox_Head); // enqueue owner's mailbox queue
 					}
 					else
 						kcaptr->RtnValue = ERROR;
@@ -205,18 +211,45 @@ void SVCHandler(Stack *argptr)
 			if (MAILBOXLIST[mailbox_to_unbind].Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
 			{
 				MAILBOXLIST[mailbox_to_unbind].Owner = NULL;
-				EnqueueToAvailableMbx(&MAILBOXLIST[mailbox_to_unbind]);
+				EnqueueMbxToQueue(&MAILBOXLIST[mailbox_to_unbind],AVAILABLE_MAILBOX);
 			}
 			else
 				kcaptr->RtnValue = ERROR;
 			break;
 		}
-		case SEND:
+		case RECEIVE:
 		{
+			RecvMsgArgs* args = (RecvMsgArgs*)kcaptr->Arg1; // get the argument
+			Message* to_recv = MAILBOXLIST[args->Recver].First_Message; // get the first message
+			if (to_recv == NULL) // if no message waiting, block
+			{
+				PCB* recver = MAILBOXLIST[args->Recver].Owner;
+				recver->Mailbox_Wait = args->Recver;
+				//recver->Msg_Wait
+			}
+			else
+			{
+				if (MAILBOXLIST[args->Recver].First_Message == MAILBOXLIST[args->Recver].Last_Message) // if last message in the queue
+				{
+					// clear the first and last flag
+					MAILBOXLIST[args->Recver].First_Message = NULL;
+					MAILBOXLIST[args->Recver].Last_Message = NULL;
+				}
+				else
+					MAILBOXLIST[args->Recver].First_Message = to_recv->Next; // assign new head
+
+				// Read message
+				int copy_size = *args->Size < to_recv->Size ? *args->Size : to_recv->Size; // get smaller size
+				*args->Sender = to_recv->Sender; // assign sender's mailbox number
+				memcpy(to_recv->Message_Addr, args->Msg_addr, copy_size); // copy bytes
+
+				free(to_recv); // release message
+				*args->Size = copy_size;
+			}
 
 			break;
 		}
-		case RECEIVE:
+		case SEND:
 		{
 
 			break;

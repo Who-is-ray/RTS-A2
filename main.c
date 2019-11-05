@@ -8,14 +8,10 @@
  * Fall 2019
  */
 
-//*********To Remove**********//
-#include "Queue.h"
-#include "Systick.h"
-//*********To Remove**********//
-
 #include <stdio.h>
 #include "Message.h"
 #include "KernelCall.h"
+#include "Process.h"
 
 extern int FirstSVCall;
 
