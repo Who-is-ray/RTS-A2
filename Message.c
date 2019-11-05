@@ -19,15 +19,20 @@ struct __message*message_head=NULL;
 struct __message*message_curr,*message_prev;
 extern void assignR7(volatile unsigned long data);
 void pkcall(int code,void*pkmsg){
-    /*process-kernel call function. Supplies code and kernel message to the
-     * kernel is a kernel request. Has no return*/
-    volatile struct krequest arglist;
-    arglist.code=code;
-    arglist.pkmsg=pkmsg;
-    /*R7=address of arglist structure*/
-    assignR7((unsigned long)&arglist);
-    /*call kernel*/
-    SVC();
+
+    if (code == send)
+    {
+        /*process-kernel call function. Supplies code and kernel message to the
+         * kernel is a kernel request. Has no return*/
+        volatile struct KCallArgs arg;
+        arg.Code = send;
+        arg.Arg1 = (int)pkmsg;
+
+        /*R7=address of arglist structure*/
+        assignR7((unsigned long)&arglist);
+        /*call kernel*/
+        SVC();
+    }
 }
 
 void Initialize_Mailbox(void){
