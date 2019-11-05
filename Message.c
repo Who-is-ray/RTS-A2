@@ -13,8 +13,8 @@
 
 #define MAILBOXLIST_SIZE	32
 
-volatile Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
-volatile Mailbox* AVAILABLE_MAILBOX = NULL;
+Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
+Mailbox* AVAILABLE_MAILBOX = NULL;
 
 void IntializeMailboxList()
 {
@@ -45,7 +45,12 @@ void EnqueueToAvailableMbx(Mailbox* Mbx)
 
 void DequeueFromAvailableMbx(Mailbox* Mbx)
 {
-
+	if (AVAILABLE_MAILBOX == Mbx)
+	{
+		Mbx->Next = NULL;
+		Mbx->Prev = NULL;
+		AVAILABLE_MAILBOX = NULL;
+	}
 }
 
 #endif /* MESSAGE_C_ */

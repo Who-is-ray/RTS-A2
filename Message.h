@@ -13,6 +13,10 @@
 typedef struct __Message Message;
 typedef struct __Mailbox Mailbox;
 
+void IntializeMailboxList();
+void EnqueueToAvailableMbx(Mailbox* Mbx);
+void DequeueFromAvailableMbx(Mailbox* Mbx);
+
 // stucture of Message
 struct __Message
 {
