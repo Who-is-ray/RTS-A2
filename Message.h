@@ -25,7 +25,7 @@ typedef struct mailbox_list{//contain 5 elements
     struct __message* msg_ptr;
     //pointer, point to the last message in one of the mailbox
     struct __message* tail_msg;
-} ;
+};
 typedef struct Send_Recv_args{//5 arguments, used for both send and recv
     unsigned int dst_mbx;//the receiver box
     unsigned int from_mbx;//the sender box

@@ -7,6 +7,8 @@
  */
 #include "Message.h"
 #include "Process.h"
+#include"KernelCall.h"
+#include<stdio.h>
 #define max_Mailbox 10
 /*the position of time sever and uart output are fixed
  * does uart input need a mailbox, too?*/
@@ -54,10 +56,10 @@ int p_send(unsigned int dst,unsigned int from,void*msg,unsigned int size){
 }
 int p_recv(unsigned int dst,unsigned int from,void*msg,unsigned int size){
     struct Send_Recv_args recv_args;
-    send_args.dst_mbx=dst;
-        send_args.from_mbx=from;
-        send_args.msg=msg;
-        send_args.size=size;
-        pkcall(SEND,&send_args);
-        return send_args.rtncode;
+    recv_args.dst_mbx=dst;
+        recv_args.from_mbx=from;
+        recv_args.msg=msg;
+        recv_args.size=size;
+        pkcall(SEND,&recv_args);
+        return recv_args.rtncode;
 }
