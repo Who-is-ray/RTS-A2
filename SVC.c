@@ -209,10 +209,17 @@ void SVCHandler(Stack *argptr)
 			}
 			else
 				kcaptr->RtnValue = ERROR;
+			break;
 		}
 		case SEND:
 		{
 
+			break;
+		}
+		case RECEIVE:
+		{
+
+			break;
 		}
 
         default:
