@@ -48,14 +48,17 @@ void EnqueueToAvailableMbx(Mailbox* Mbx)
 
 void DequeueFromAvailableMbx(Mailbox* Mbx)
 {
-	if (AVAILABLE_MAILBOX == Mbx) // if is the head of 
+	if (AVAILABLE_MAILBOX->Next == NULL) // if is the only mailbox in the queue
 	{
 		Mbx->Next = NULL;
 		Mbx->Prev = NULL;
-		AVAILABLE_MAILBOX = AVAILABLE_MAILBOX->Next;
+		AVAILABLE_MAILBOX = NULL;
 	}
 	else // remove from the queue
 	{
+	    if(AVAILABLE_MAILBOX == Mbx) // if is the head of queue
+	        AVAILABLE_MAILBOX = AVAILABLE_MAILBOX->Next; // update the head
+
 		// change the queue link
 		Mbx->Next->Prev = Mbx->Prev;
 		Mbx->Prev->Next = Mbx->Next;

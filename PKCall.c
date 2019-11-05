@@ -25,9 +25,6 @@ int PKCall(KernelCallCode code, int pkmsg)
 	/* R7 = address of arglist structure */
 	AssignR7((unsigned long)&arg);
 
-	// Update PSP value
-	set_PSP((unsigned long)(RUNNING->PSP));
-
 	/* Call kernel */
 	SVC();
 	/* Return result of request to caller */
@@ -56,9 +53,6 @@ int Bind(int mbx)
 
 	/* Assign address if getidarg to R7 */
 	AssignR7((unsigned long)&args);
-
-	// Update PSP value
-	set_PSP((unsigned long)(RUNNING->PSP));
 
 	// Call Kernel
 	SVC();

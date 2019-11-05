@@ -60,8 +60,8 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
-	Bind(-1);
-	Bind(0);
+	//Bind(-1);
+	//Bind(0);
 	Nice(5);
 	while(1)
 	{
