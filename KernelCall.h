@@ -21,5 +21,6 @@ struct KCallArgs
 void KernelInitialization();
 int KC_GetID();
 void Terminate();
+int Nice(int new_priority);
 
 #endif /* KERNELCALL_H_ */

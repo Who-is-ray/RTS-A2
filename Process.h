@@ -18,6 +18,7 @@
 
 #define MSP_RETURN 0xFFFFFFF9    //LR value: exception return using MSP as SP
 #define PSP_RETURN 0xFFFFFFFD    //LR value: exception return using PSP as SP
+#define NUM_OF_SW_PUSH_REG  8
 typedef struct __PCB PCB;
 
 void set_LR(volatile unsigned long);
@@ -71,14 +72,16 @@ struct __PCB
     PCB* Next;
     PCB* Prev;
 
-    /* Stack pointer - r13 (PSP) */
-    Stack* PSP;
-
 	/* Process's ID*/
 	int PID;
 
 	/* Process's priority*/
 	int Priority;
+
+    /* Stack pointer - r13 (PSP) */
+    Stack* PSP;
+
+    void* StackTop;
 } ;
 
 #endif /* PROCESS_H_ */

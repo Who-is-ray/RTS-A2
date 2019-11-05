@@ -14,6 +14,7 @@
 extern void SysTickInit();
 
 extern PCB* RUNNING;
+extern int PENDSV_ON;
 
 volatile int FirstSVCall = FALSE;
 
@@ -97,7 +98,7 @@ void SVCHandler(Stack *argptr)
            should be increased by 8 * sizeof(unsigned int).
          * sp is increased because the stack runs from low to high memory.
         */
-        set_PSP((unsigned long)(RUNNING -> PSP) + 8 * sizeof(unsigned long));
+        set_PSP((unsigned long)(RUNNING -> PSP) + (8 * sizeof(unsigned long)));
 
 		FirstSVCall = FALSE;
 
@@ -135,18 +136,39 @@ void SVCHandler(Stack *argptr)
 		}
 		case TERMINATE:
 		{
-			PCB* nextRun;
+			PCB* terminated = RUNNING;
 			if (RUNNING == RUNNING->Next) // the only process in the queue
-				nextRun = CheckLowerPriorityProcess(); // chech lowere priority queue
+			    RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
 			else
-				nextRun = RUNNING->Next;
+			    RUNNING = RUNNING->Next;
 
-			DequeueProcess(RUNNING);
+			set_PSP((unsigned long)(RUNNING->PSP));
 
-			free(RUNNING->PSP); // free the stack
-			free(RUNNING);	// free the pcb
+			DequeueProcess(terminated);
 
-			RUNNING = nextRun;
+			free(terminated->StackTop); // free the stack
+			free(terminated);	// free the pcb
+
+			break;
+		}
+		case NICE:
+		{
+			int old_priority = RUNNING->Priority;
+			int new_priority = kcaptr->Arg1;
+
+			DequeueProcess(RUNNING); // Dequeue from old priority queue
+			RUNNING->Priority = new_priority; // assign new priority
+			EnqueueProcess(RUNNING); // Enqueue to new priority queue
+
+			if (new_priority<old_priority)
+			{
+				RUNNING = CheckLowerPriorityProcess(old_priority);
+				set_PSP((unsigned long)(RUNNING->PSP));
+			}
+
+
+			kcaptr->RtnValue = TRUE;
+
 			break;
 		}
 		case SEND:
@@ -160,13 +182,15 @@ void SVCHandler(Stack *argptr)
         default:
             kcaptr -> RtnValue = -1;
         }
-
     }
-
 }
 
 void PendSV_Handler()
 {
+    PENDSV_ON = TRUE;
+
+	RUNNING->PSP = (Stack*)(get_PSP()-NUM_OF_SW_PUSH_REG*sizeof(unsigned long));
+
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
 
@@ -175,4 +199,6 @@ void PendSV_Handler()
 
 	set_PSP((unsigned long)(RUNNING->PSP));
 	restore_registers(); /* Restore process¡¯s registers */
+
+	PENDSV_ON = FALSE;
 }

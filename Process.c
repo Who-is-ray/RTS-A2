@@ -13,12 +13,12 @@
 
 #define PRIORITY_LIST_SIZE  6
 #define PSR_INITIAL_VAL		0x01000000
-
+#define INITIAL_STACK_TOP_OFFSET    960
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 // RUNNING Pcb
-PCB* RUNNING = NULL;
+volatile PCB* RUNNING = NULL;
 
 //*********To Remove**********//
 #include "Queue.h"
@@ -54,9 +54,15 @@ void OutputNewLine()
 
 void process_1()
 {
-	while (1)
+    unsigned int i;
+	for (i=0; i < 20000; i++)
 	{
-	    //UART0_DR_R = 'x';
+	    UART0_DR_R = 'x';
+	}
+	Nice(5);
+	while(1)
+	{
+		UART0_DR_R = '1';
 	}
 }
 
@@ -64,7 +70,7 @@ void process_2()
 {
 	while (1)
 	{
-	    //UART0_DR_R = 'y';
+	    UART0_DR_R = 'y';
 	}
 }
 
@@ -72,7 +78,7 @@ void process_3()
 {
 	while (1)
 	{
-	    //UART0_DR_R = 'z';
+	    UART0_DR_R = 'z';
 	}
 }
 
@@ -88,13 +94,30 @@ void process_IDLE()
 
 int reg_process(void (*func_name)(), int pid, int priority)
 {
-	PCB* pcb = malloc(sizeof(PCB)); // Allocate memory for pcb
-	pcb->PSP = malloc(sizeof(Stack)); // Allocate memory for stack
+	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
 	pcb->PID = pid; // Assign ID
 	pcb->Priority = priority; // Assign priority
+	pcb->StackTop = malloc(STACKSIZE);
+
+	// Stack should grow from bottom
+	pcb->PSP = (Stack*)((unsigned long)pcb->StackTop + INITIAL_STACK_TOP_OFFSET);
+
 	pcb->PSP->PSR = PSR_INITIAL_VAL; // Assign PSR initial value
 	pcb->PSP->PC = (unsigned long)func_name; // Assign process's function to PC
 	pcb->PSP->LR = (unsigned long)Terminate; // Assign terminate function to LR
+	pcb->PSP->R0 = NULL;
+	pcb->PSP->R1 = NULL;
+	pcb->PSP->R2 = NULL;
+	pcb->PSP->R3 = NULL;
+	pcb->PSP->R4 = NULL;
+	pcb->PSP->R5 = NULL;
+	pcb->PSP->R6 = NULL;
+	pcb->PSP->R7 = NULL;
+	pcb->PSP->R8 = NULL;
+	pcb->PSP->R9 = NULL;
+	pcb->PSP->R10 = NULL;
+	pcb->PSP->R11 = NULL;
+	pcb->PSP->R12 = NULL;
 	EnqueueProcess(pcb); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 
@@ -139,16 +162,18 @@ void DequeueProcess(PCB* pcb)
 		PRIORITY_LIST[pcb->Priority] = NULL;
 	else // not the only process in the queue
 	{
+		if (PRIORITY_LIST[pcb->Priority] == pcb) // if is the head of queue
+			PRIORITY_LIST[pcb->Priority] = pcb->Next; // update queue
 		pcb->Prev->Next = pcb->Next;
 		pcb->Next->Prev = pcb->Prev;
 	}
 }
 
-// return pcb pointer of next process to run, next process can not be itself
-PCB* CheckLowerPriorityProcess()
+// return pcb pointer of the first process below input priority
+PCB* CheckLowerPriorityProcess(int priority)
 {
 	int i;
-	for (i = RUNNING->Priority - 1; i >= 0; i--) // check lower priority
+	for (i = priority - 1; i >= 0; i--) // check lower priority
 	{
 		if (PRIORITY_LIST[i] != NULL)
 			return PRIORITY_LIST[i];

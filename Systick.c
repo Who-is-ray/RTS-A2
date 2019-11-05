@@ -38,6 +38,9 @@ volatile Systick_Clock alarm = {.day         = 0,
                                 .min         = 0,
                                 .sec         = 0,
                                 .t_sec       = 0};
+
+volatile int PENDSV_ON;
+
 void SysTickStart(void)
 {
     // Set the clock source to internal and enable the counter to interrupt
@@ -72,8 +75,8 @@ void SysTickIntDisable(void)
 
 void SysTickHandler(void)
 {
-	// Process switch, trigger PendSV after this function
-	NVIC_INT_CTRL_R |= TRIGGER_PENDSV;
+    if (PENDSV_ON == FALSE)
+        NVIC_INT_CTRL_R |= TRIGGER_PENDSV;// Process switch, trigger PendSV after this function
 
 	// Update to time server
     //EnQueue(INPUT, SYSTICK, NULL);

@@ -70,17 +70,17 @@ void UART0_IntHandler(void)
     //    EnQueue( INPUT, UART, UART0_DR_R);
     //}
 
-    if (UART0_MIS_R & UART_INT_TX)
-    {
-        /* XMIT done - clear interrupt */
-        UART0_ICR_R |= UART_INT_TX;
+    //if (UART0_MIS_R & UART_INT_TX)
+    //{
+    //    /* XMIT done - clear interrupt */
+    //    UART0_ICR_R |= UART_INT_TX;
 
-        //char data;
-        //if(DeQueue(OUTPUT, UART, &data)) // if output queue is not empty
-        //    UART0_DR_R = data;  // transmit next data
-        //else // if output queue is empty
-        //    UART_STATUS = IDLE; // idle
-    }
+    //    char data;
+    //    if(DeQueue(OUTPUT, UART, &data)) // if output queue is not empty
+    //        UART0_DR_R = data;  // transmit next data
+    //    else // if output queue is empty
+    //        UART_STATUS = IDLE; // idle
+    //}
 }
 
 void InterruptMasterEnable(void)
