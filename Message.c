@@ -17,19 +17,18 @@ Mailbox* AVAILABLE_MAILBOX = NULL;
 
 void EnqueueMbxToQueue(Mailbox* mbx, Mailbox** queue_head)
 {
-	Mailbox* head = *queue_head;
-	if (head == NULL) // if has no item in the queue
+	if (*queue_head == NULL) // if has no item in the queue
 	{
-		head = mbx;
+	    *queue_head = mbx;
 		mbx->Next = mbx;
 		mbx->Prev = mbx;
 	}
 	else // insert after the first item
 	{
-		mbx->Prev = AVAILABLE_MAILBOX;
-		mbx->Next = AVAILABLE_MAILBOX->Next;
-		AVAILABLE_MAILBOX->Next->Prev = mbx;
-		AVAILABLE_MAILBOX->Next = mbx;
+		mbx->Prev = *queue_head;
+		mbx->Next = (*queue_head)->Next;
+		(*queue_head)->Next->Prev = mbx;
+		(*queue_head)->Next = mbx;
 	}
 
 	// clear the owner
@@ -49,17 +48,16 @@ void EnqueueMbxToQueue(Mailbox* mbx, Mailbox** queue_head)
 
 void DequeueMbxFromQueue(Mailbox* mbx, Mailbox** queue_head)
 {
-	Mailbox* head = *queue_head;
-	if (head->Next == NULL) // if is the only mailbox in the queue
+	if ((*queue_head)->Next == NULL) // if is the only mailbox in the queue
 	{
 		mbx->Next = NULL;
 		mbx->Prev = NULL;
-		head = NULL;
+		(*queue_head) = NULL;
 	}
 	else // remove from the queue
 	{
-	    if(head == mbx) // if is the head of queue
-			head = head->Next; // update the head
+	    if((*queue_head) == mbx) // if is the head of queue
+			(*queue_head) = (*queue_head)->Next; // update the head
 
 		// change the queue link
 		mbx->Next->Prev = mbx->Prev;

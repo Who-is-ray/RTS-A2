@@ -184,8 +184,8 @@ void SVCHandler(Stack *argptr)
 					{
 						Mailbox* mbx = AVAILABLE_MAILBOX;
 						mbx->Owner = RUNNING; // assign new owner
-						DequeueMbxFromQueue(mbx, AVAILABLE_MAILBOX); // dequeue from available list
-						EnqueueMbxToQueue(mbx, RUNNING->Mailbox_Head); // enqueue owner's mailbox queue
+						DequeueMbxFromQueue(mbx, &AVAILABLE_MAILBOX); // dequeue from available list
+						EnqueueMbxToQueue(mbx, (Mailbox**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
 					}
 				}
 				else
@@ -194,8 +194,8 @@ void SVCHandler(Stack *argptr)
 					{
 						Mailbox* mbx = &MAILBOXLIST[mailbox_to_bind];
 						mbx->Owner = RUNNING; // assign new owner
-						DequeueMbxFromQueue(mbx, AVAILABLE_MAILBOX); // dequque from available list
-						EnqueueMbxToQueue(mbx, RUNNING->Mailbox_Head); // enqueue owner's mailbox queue
+						DequeueMbxFromQueue(mbx, &AVAILABLE_MAILBOX); // dequque from available list
+						EnqueueMbxToQueue(mbx, (Mailbox**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
 					}
 					else
 						kcaptr->RtnValue = ERROR;
@@ -211,7 +211,7 @@ void SVCHandler(Stack *argptr)
 			if (MAILBOXLIST[mailbox_to_unbind].Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
 			{
 				MAILBOXLIST[mailbox_to_unbind].Owner = NULL;
-				EnqueueMbxToQueue(&MAILBOXLIST[mailbox_to_unbind],AVAILABLE_MAILBOX);
+				EnqueueMbxToQueue(&MAILBOXLIST[mailbox_to_unbind],&AVAILABLE_MAILBOX);
 			}
 			else
 				kcaptr->RtnValue = ERROR;
