@@ -14,7 +14,7 @@ typedef struct __Message Message;
 typedef struct __Mailbox Mailbox;
 
 void MailboxListIntialization();
-void EnqueueMbxToQueue(Mailbox* mbx, Mailbox** queue_head);
+void EnqueueMbxToAvailable(Mailbox* mbx, Mailbox** queue_head);
 void DequeueMbxFromQueue(Mailbox* mbx, Mailbox** queue_head);
 
 // stucture of Message

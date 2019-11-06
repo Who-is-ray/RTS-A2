@@ -11,6 +11,7 @@
 void Send(int recver, int sender, void* msg, int* size);
 void Receive(int recver, int* sender, void* msg, int* size);
 int Bind(int mbx);
+int Unbind(int mbx);
 
 // Structure of send 
 typedef struct

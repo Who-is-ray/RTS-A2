@@ -11,8 +11,8 @@
 #include "KernelCall.h"
 #include "PKCall.h"
 #include "Uart.h"
+#include "QueueFuncs.h"
 
-#define PRIORITY_LIST_SIZE  6
 #define PSR_INITIAL_VAL		0x01000000
 #define INITIAL_STACK_TOP_OFFSET    960
 // create and initialize priority list
@@ -60,10 +60,10 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
-	Bind(-1);
-	Bind(0);
+	int a = Bind(-1);
+	a = Bind(0);
 	Nice(5);
-	while(1)
+	for (i=0; i < 20000; i++)
 	{
 		UART0_DR_R = '1';
 	}
@@ -126,7 +126,7 @@ int reg_process(void (*func_name)(), int pid, int priority)
 	pcb->PSP->R11 = NULL;
 	pcb->PSP->R12 = NULL;
 
-	EnqueueProcess(pcb); // Add to queue
+	Enqueue(pcb, (QueueItem**)&(PRIORITY_LIST[pcb->Priority])); // Add to queue
 
 	if ((RUNNING == NULL) || (priority > RUNNING->Priority)) 
 		// if is the first process or has higher priority, assign it to RUNNING
@@ -143,38 +143,6 @@ void Initialize_Process()
 	reg_process(process_2, 2, 4); // register process 1
 	reg_process(process_3, 3, 4); // register process 1
 
-}
-
-// Enqueue process to queue
-void EnqueueProcess(PCB* pcb)
-{
-	if (PRIORITY_LIST[pcb->Priority] == NULL) // no process in the queue
-	{
-		PRIORITY_LIST[pcb->Priority] = pcb;
-		pcb->Next = pcb;
-		pcb->Prev = pcb;
-	}
-	else // add to existing queue
-	{
-		pcb->Prev = PRIORITY_LIST[pcb->Priority];
-		pcb->Next = PRIORITY_LIST[pcb->Priority]->Next;
-		PRIORITY_LIST[pcb->Priority]->Next->Prev = pcb;
-		PRIORITY_LIST[pcb->Priority]->Next = pcb;
-	}
-}
-
-// Dequeue process from queue
-void DequeueProcess(PCB* pcb)
-{
-	if (pcb->Next == pcb) // the only process in this queue
-		PRIORITY_LIST[pcb->Priority] = NULL;
-	else // not the only process in the queue
-	{
-		if (PRIORITY_LIST[pcb->Priority] == pcb) // if is the head of queue
-			PRIORITY_LIST[pcb->Priority] = pcb->Next; // update queue
-		pcb->Prev->Next = pcb->Next;
-		pcb->Next->Prev = pcb->Prev;
-	}
 }
 
 // return pcb pointer of the first process below input priority

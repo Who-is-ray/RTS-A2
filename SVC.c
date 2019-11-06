@@ -13,12 +13,14 @@
 #include "PKCall.h"
 #include "Message.h"
 #include "Process.h"
+#include "QueueFuncs.h"
 
 #define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
 
 extern void SysTickInit();
 
 extern PCB* RUNNING;
+extern PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE];
 extern int PENDSV_ON;
 extern Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
 extern Mailbox* AVAILABLE_MAILBOX;
@@ -144,7 +146,7 @@ void SVCHandler(Stack *argptr)
 
 			set_PSP((unsigned long)(RUNNING->PSP));
 
-			DequeueProcess(terminated);
+			Dequeue(terminated, (QueueItem**)&(PRIORITY_LIST[terminated->Priority]));
 
 			free(terminated->StackTop); // free the stack
 			free(terminated);	// free the pcb
@@ -156,9 +158,9 @@ void SVCHandler(Stack *argptr)
 			int old_priority = RUNNING->Priority;
 			int new_priority = kcaptr->Arg1;
 
-			DequeueProcess(RUNNING); // Dequeue from old priority queue
+			Dequeue(RUNNING, (QueueItem**)&(PRIORITY_LIST[RUNNING->Priority])); // Dequeue from old priority queue
 			RUNNING->Priority = new_priority; // assign new priority
-			EnqueueProcess(RUNNING); // Enqueue to new priority queue
+			Enqueue(RUNNING, (QueueItem**)&(PRIORITY_LIST[RUNNING->Priority])); // Enqueue to new priority queue
 
 			if (new_priority<old_priority)
 			{
@@ -183,9 +185,9 @@ void SVCHandler(Stack *argptr)
 					else
 					{
 						Mailbox* mbx = AVAILABLE_MAILBOX;
+						Dequeue(mbx, (QueueItem**)&AVAILABLE_MAILBOX); // dequeue from available list
 						mbx->Owner = RUNNING; // assign new owner
-						DequeueMbxFromQueue(mbx, &AVAILABLE_MAILBOX); // dequeue from available list
-						EnqueueMbxToQueue(mbx, (Mailbox**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
+						Enqueue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
 					}
 				}
 				else
@@ -193,9 +195,9 @@ void SVCHandler(Stack *argptr)
 					if (MAILBOXLIST[mailbox_to_bind].Owner == NULL) // if mailbox is available
 					{
 						Mailbox* mbx = &MAILBOXLIST[mailbox_to_bind];
+						Dequeue(mbx, (QueueItem**)&AVAILABLE_MAILBOX); // dequque from available list
 						mbx->Owner = RUNNING; // assign new owner
-						DequeueMbxFromQueue(mbx, &AVAILABLE_MAILBOX); // dequque from available list
-						EnqueueMbxToQueue(mbx, (Mailbox**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
+						Enqueue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
 					}
 					else
 						kcaptr->RtnValue = ERROR;
@@ -208,10 +210,12 @@ void SVCHandler(Stack *argptr)
 		case UNBIND:
 		{
 			int mailbox_to_unbind = kcaptr->Arg1;
-			if (MAILBOXLIST[mailbox_to_unbind].Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
+			Mailbox* mbx = &MAILBOXLIST[mailbox_to_unbind];
+			if (mbx->Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
 			{
-				MAILBOXLIST[mailbox_to_unbind].Owner = NULL;
-				EnqueueMbxToQueue(&MAILBOXLIST[mailbox_to_unbind],&AVAILABLE_MAILBOX);
+				mbx->Owner = NULL;
+				Dequeue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head));
+				EnqueueMbxToAvailable(mbx,&AVAILABLE_MAILBOX);
 			}
 			else
 				kcaptr->RtnValue = ERROR;
