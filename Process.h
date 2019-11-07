@@ -21,6 +21,7 @@
 #define PSP_RETURN 0xFFFFFFFD    //LR value: exception return using PSP as SP
 #define NUM_OF_SW_PUSH_REG  8
 #define PRIORITY_LIST_SIZE  6
+#define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
 
 typedef struct __PCB PCB;
 
@@ -93,7 +94,7 @@ struct __PCB
 	/* Waiting mailbox number for unblock*/
 	int Mailbox_Wait;
 
-	/* Waiting message info*/
+	/* Waiting message info, RecvMsgArgs pointer*/
 	void* Msg_Wait;
 } ;
 

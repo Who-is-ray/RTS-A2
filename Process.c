@@ -60,17 +60,24 @@ void process_1()
 	{
 	    UART0_DR_R = 'x';
 	}
-	int a = Bind(-1);
-	a = Bind(0);
-	Nice(5);
+	int a = Bind(ANYMAILBOX);
+	int mbx = Nice(5);
 	for (i=0; i < 20000; i++)
 	{
 		UART0_DR_R = '1';
 	}
+	int msg = 123;
+	int sz = sizeof(msg);
+	Send(0, a, &msg, &sz);
 }
 
 void process_2()
 {
+	int mbx = Bind(ANYMAILBOX);
+	int sender;
+	int msg;
+	int size = sizeof(msg);
+	Receive(mbx, &sender, &msg, &size);
 	while (1)
 	{
 	    UART0_DR_R = 'y';

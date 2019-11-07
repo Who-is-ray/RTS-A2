@@ -39,7 +39,10 @@ void MailboxListIntialization()
 {
 	int i;
 	for (i = 0; i < MAILBOXLIST_SIZE; i++)
+	{
+		MAILBOXLIST[i].ID = i;
 		EnqueueMbxToAvailable(&MAILBOXLIST[i],&AVAILABLE_MAILBOX); // Add to Available maibox list
+	}
 }
 
 #endif /* MESSAGE_C_ */

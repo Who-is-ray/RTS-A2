@@ -14,8 +14,8 @@ typedef enum
 	INVALID_RECVER		// invalid receiver (-1)
 } MsgRtnCode; // send message error code
 
-void Send(int recver, int sender, void* msg, int* size);
-void Receive(int recver, int* sender, void* msg, int* size);
+int Send(int recver, int sender, void* msg, int* size);
+int Receive(int recver, int* sender, void* msg, int* size);
 int Bind(int mbx);
 int Unbind(int mbx);
 

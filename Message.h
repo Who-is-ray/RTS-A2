@@ -48,6 +48,9 @@ struct __Mailbox
 
 	// Owner of the mailbox, PCB pointer
 	void* Owner;
+
+	// Mailbox ID
+	int ID;
 };
 
 #endif /* MESSAGE_H_ */

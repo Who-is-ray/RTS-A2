@@ -15,8 +15,6 @@
 #include "Process.h"
 #include "QueueFuncs.h"
 
-#define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
-
 extern void SysTickInit();
 
 extern PCB* RUNNING;
@@ -198,6 +196,8 @@ void SVCHandler(Stack *argptr)
 						Dequeue(mbx, (QueueItem**)&AVAILABLE_MAILBOX); // dequeue from available list
 						mbx->Owner = RUNNING; // assign new owner
 						Enqueue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
+
+						kcaptr->RtnValue = mbx->ID; // return bound mailbox id
 					}
 				}
 				else
@@ -208,6 +208,8 @@ void SVCHandler(Stack *argptr)
 						Dequeue(mbx, (QueueItem**)&AVAILABLE_MAILBOX); // dequque from available list
 						mbx->Owner = RUNNING; // assign new owner
 						Enqueue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head)); // enqueue owner's mailbox queue
+
+						kcaptr->RtnValue = mbx->ID; // return bound mailbox id
 					}
 					else
 						kcaptr->RtnValue = ERROR;
@@ -243,7 +245,7 @@ void SVCHandler(Stack *argptr)
 					// Save waiting message info
 					PCB* recver = MAILBOXLIST[args->Recver].Owner;
 					recver->Mailbox_Wait = args->Recver;
-					recver->Msg_Wait = to_recv;
+					recver->Msg_Wait = args;
 
 					// Block running
 					BlockRunningProcess(FALSE);
@@ -270,30 +272,38 @@ void SVCHandler(Stack *argptr)
 				}
 			}
 			else
-				args->Size = INVALID_RECVER;
+				*args->Size = INVALID_RECVER;
 
 			break;
 		}
 		case SEND:
 		{
-			SendMsgArgs* args = (RecvMsgArgs*)kcaptr->Arg1; // get the argument
+			SendMsgArgs* args = (SendMsgArgs*)kcaptr->Arg1; // get the argument
 
 			if (MAILBOXLIST[args->Sender].Owner == RUNNING) // if sender is valid
 			{
 				PCB* recver = MAILBOXLIST[args->Recver].Owner;
-				if (recver != NULL)
+				if (recver != NULL) // if receiver is valid
 				{
 					if (recver->Mailbox_Wait == args->Recver && recver->Msg_Wait != NULL) // if receiver is blocked and waiting for this mailbox
 					{
-						
+						RecvMsgArgs* receiver_waiting = recver->Msg_Wait;
+						int copy_size = *args->Size < *receiver_waiting->Size ? *args->Size : *receiver_waiting->Size; // get smaller size
+
+						// Copy msg to receiver
+						memcpy(receiver_waiting->Msg_addr, args->Msg_addr, copy_size); // copy message
+						*args->Size = copy_size; // update size
+
+						// Unblock process
+						Enqueue(recver, (QueueItem**)& (PRIORITY_LIST[recver->Priority])); // add back to process queue
 					}
 					else // if is not waiting on this mailbox
 					{
 						// Add message to mailbox
 						Message* msg = malloc(sizeof(Message)); // create message struct
-						msg->Message_Addr = malloc(args->Size); // allocate message memory
-						memcpy(msg->Message_Addr, args->Msg_addr, args->Size); // copy from process stack to mailbox
-						msg->Size = args->Size; // store the size
+						msg->Message_Addr = malloc(*args->Size); // allocate message memory
+						memcpy(msg->Message_Addr, args->Msg_addr, *args->Size); // copy from process stack to mailbox
+						msg->Size = *args->Size; // store the size
 						msg->Sender = args->Sender; // store the sender's mailbox number
 						msg->Next = NULL; // to add to the end of message list
 
@@ -311,10 +321,10 @@ void SVCHandler(Stack *argptr)
 					}
 				}
 				else
-					args->Size = INVALID_RECVER;
+					*args->Size = INVALID_RECVER;
 			}
 			else
-				args->Size = INVALID_SENDER;
+				*args->Size = INVALID_SENDER;
 
 			break;
 		}

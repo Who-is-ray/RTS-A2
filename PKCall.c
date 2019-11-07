@@ -35,14 +35,14 @@ int Send(int recver, int sender, void* msg, int* size)
 {
 	SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
 	PKCall(SEND, (int)&arg);
-	return arg.Size;
+	return *arg.Size;
 }
 
 int Receive(int recver, int* sender, void* msg, int* size)
 {
 	RecvMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
 	PKCall(RECEIVE, (int)&arg);
-	return arg.Size;
+	return *arg.Size;
 }
 
 int Bind(int mbx)
