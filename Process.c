@@ -55,29 +55,41 @@ void OutputNewLine()
 
 void process_1()
 {
+    Bind(6);
+    Bind(3);
+    Bind(12);
+	int mbx = Bind(11);
     unsigned int i;
 	for (i=0; i < 20000; i++)
 	{
 	    UART0_DR_R = 'x';
 	}
-	int a = Bind(ANYMAILBOX);
-	int mbx = Nice(5);
+	Nice(5);
 	for (i=0; i < 20000; i++)
 	{
-		UART0_DR_R = '1';
+		UART0_DR_R = 'x';
 	}
-	int msg = 123;
-	int sz = sizeof(msg);
-	Send(0, a, &msg, &sz);
+	int msg;
+	int size;
+    int sender;
+    Receive(-1, &sender, &msg, &size);
+    Receive(-1, &sender, &msg, &size);
+    Nice(1);
 }
 
 void process_2()
 {
-	int mbx = Bind(ANYMAILBOX);
-	int sender;
-	int msg;
-	int size = sizeof(msg);
-	Receive(mbx, &sender, &msg, &size);
+    int i;
+    for (i=0; i < 2000; i++)
+    {
+        UART0_DR_R = 'y';
+    }
+	int mbx = Bind(2);
+	int msg1 = 123;
+	int msg2 = 789;
+	int size = sizeof(msg1);
+    Send(11, mbx, &msg1, &size);
+    Send(11, mbx, &msg2, &size);
 	while (1)
 	{
 	    UART0_DR_R = 'y';

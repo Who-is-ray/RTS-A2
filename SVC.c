@@ -46,6 +46,30 @@ void BlockRunningProcess(int isTerminate)
 	}
 }
 
+// Read message from specific mailbox
+void ReceiveMsgFromMailbox(RecvMsgArgs* args, Mailbox* mbx)
+{
+	Message* to_recv = mbx->First_Message; // get the first message
+
+	if (to_recv == mbx->Last_Message) // if last message in the queue
+	{
+		// clear the first and last flag
+	    mbx->First_Message = NULL;
+	    mbx->Last_Message = NULL;
+	}
+	else
+	    mbx->First_Message = to_recv->Next; // assign new head
+
+	// Read message
+	int copy_size = *args->Size < to_recv->Size ? *args->Size : to_recv->Size; // get smaller size
+	*args->Sender = to_recv->Sender; // assign sender's mailbox number
+	memcpy(args->Msg_addr, to_recv->Message_Addr, copy_size); // copy bytes
+
+	free(to_recv->Message_Addr);
+	free(to_recv); // release message
+	*args->Size = copy_size;
+}
+
 void SVCall(void)
 {
 /* Supervisor call (trap) entry point
@@ -237,43 +261,48 @@ void SVCHandler(Stack *argptr)
 		{
 			RecvMsgArgs* args = (RecvMsgArgs*)kcaptr->Arg1; // get the argument
 
-			if (MAILBOXLIST[args->Recver].Owner == RUNNING) // if receiver is valid
+			if (args->Recver == ANYMAILBOX) // if receive from any mailbox
 			{
-				Message* to_recv = MAILBOXLIST[args->Recver].First_Message; // get the first message
-				if (to_recv == NULL) // if no message waiting, block
+				Mailbox* head = RUNNING->Mailbox_Head;
+				if (head != NULL) // if bound to at least one mailbox
 				{
-					// Save waiting message info
-					PCB* recver = MAILBOXLIST[args->Recver].Owner;
-					recver->Mailbox_Wait = args->Recver;
-					recver->Msg_Wait = args;
-
-					// Block running
-					BlockRunningProcess(FALSE);
-				}
-				else // has message, copy to process stack
-				{
-					if (MAILBOXLIST[args->Recver].First_Message == MAILBOXLIST[args->Recver].Last_Message) // if last message in the queue
+					Mailbox* mbx = head;
+					while (1) // search each mailbox
 					{
-						// clear the first and last flag
-						MAILBOXLIST[args->Recver].First_Message = NULL;
-						MAILBOXLIST[args->Recver].Last_Message = NULL;
+						if (mbx->First_Message != NULL) // if have message in mailbox
+						{
+							ReceiveMsgFromMailbox(args, mbx);
+							break;
+						}
+						
+						mbx = mbx->Next;
+						if (mbx == head) // if searched all mailboxes
+							break;
 					}
-					else
-						MAILBOXLIST[args->Recver].First_Message = to_recv->Next; // assign new head
-
-					// Read message
-					int copy_size = *args->Size < to_recv->Size ? *args->Size : to_recv->Size; // get smaller size
-					*args->Sender = to_recv->Sender; // assign sender's mailbox number
-					memcpy(to_recv->Message_Addr, args->Msg_addr, copy_size); // copy bytes
-
-					free(to_recv->Message_Addr);
-					free(to_recv); // release message
-					*args->Size = copy_size;
 				}
+				else
+					*args->Size = INVALID_RECVER;
 			}
-			else
-				*args->Size = INVALID_RECVER;
+			else // receive from specific mailbox
+			{
+				if (MAILBOXLIST[args->Recver].Owner == RUNNING) // if receiver is valid
+				{
+					if (MAILBOXLIST[args->Recver].First_Message == NULL) // if no message waiting, block
+					{
+						// Save waiting message info
+						PCB* recver = MAILBOXLIST[args->Recver].Owner;
+						recver->Mailbox_Wait = args->Recver;
+						recver->Msg_Wait = args;
 
+						// Block running
+						BlockRunningProcess(FALSE);
+					}
+					else // has message, copy to process stack
+						ReceiveMsgFromMailbox(args, &MAILBOXLIST[args->Recver]);
+				}
+				else
+					*args->Size = INVALID_RECVER;
+			}
 			break;
 		}
 		case SEND:
@@ -311,12 +340,12 @@ void SVCHandler(Stack *argptr)
 						if (mbx_last_msg == NULL) // if no message in mailbox
 						{
 							MAILBOXLIST[args->Recver].First_Message = msg; // update mailbox's first message pointer
-							mbx_last_msg = msg; // update mailbox's last message pointer
+							MAILBOXLIST[args->Recver].Last_Message = msg; // update mailbox's last message pointer
 						}
 						else
 						{
 							mbx_last_msg->Next = msg; // add to end on list
-							mbx_last_msg = msg; // update tail of list
+							MAILBOXLIST[args->Recver].Last_Message = msg; // update tail of list
 						}
 					}
 				}
