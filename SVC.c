@@ -27,6 +27,27 @@ extern Mailbox* AVAILABLE_MAILBOX;
 
 volatile int FirstSVCall = FALSE;
 
+// function to block running process and switch to next process
+// if is terminate, free the memory
+void BlockRunningProcess(int isTerminate)
+{
+	PCB* terminated = RUNNING;
+	if (RUNNING == RUNNING->Next) // the only process in the queue
+		RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
+	else
+		RUNNING = RUNNING->Next;
+
+	set_PSP((unsigned long)(RUNNING->PSP));
+
+	Dequeue(terminated, (QueueItem**) & (PRIORITY_LIST[terminated->Priority]));
+
+	if (isTerminate)
+	{
+		free(terminated->StackTop); // free the stack
+		free(terminated);	// free the pcb
+	}
+}
+
 void SVCall(void)
 {
 /* Supervisor call (trap) entry point
@@ -138,18 +159,7 @@ void SVCHandler(Stack *argptr)
 		}
 		case TERMINATE:
 		{
-			PCB* terminated = RUNNING;
-			if (RUNNING == RUNNING->Next) // the only process in the queue
-			    RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
-			else
-			    RUNNING = RUNNING->Next;
-
-			set_PSP((unsigned long)(RUNNING->PSP));
-
-			Dequeue(terminated, (QueueItem**)&(PRIORITY_LIST[terminated->Priority]));
-
-			free(terminated->StackTop); // free the stack
-			free(terminated);	// free the pcb
+			BlockRunningProcess(TRUE);
 
 			break;
 		}
@@ -224,37 +234,87 @@ void SVCHandler(Stack *argptr)
 		case RECEIVE:
 		{
 			RecvMsgArgs* args = (RecvMsgArgs*)kcaptr->Arg1; // get the argument
-			Message* to_recv = MAILBOXLIST[args->Recver].First_Message; // get the first message
-			if (to_recv == NULL) // if no message waiting, block
+
+			if (MAILBOXLIST[args->Recver].Owner == RUNNING) // if receiver is valid
 			{
-				PCB* recver = MAILBOXLIST[args->Recver].Owner;
-				recver->Mailbox_Wait = args->Recver;
-				//recver->Msg_Wait
+				Message* to_recv = MAILBOXLIST[args->Recver].First_Message; // get the first message
+				if (to_recv == NULL) // if no message waiting, block
+				{
+					// Save waiting message info
+					PCB* recver = MAILBOXLIST[args->Recver].Owner;
+					recver->Mailbox_Wait = args->Recver;
+					recver->Msg_Wait = to_recv;
+
+					// Block running
+					BlockRunningProcess(FALSE);
+				}
+				else // has message, copy to process stack
+				{
+					if (MAILBOXLIST[args->Recver].First_Message == MAILBOXLIST[args->Recver].Last_Message) // if last message in the queue
+					{
+						// clear the first and last flag
+						MAILBOXLIST[args->Recver].First_Message = NULL;
+						MAILBOXLIST[args->Recver].Last_Message = NULL;
+					}
+					else
+						MAILBOXLIST[args->Recver].First_Message = to_recv->Next; // assign new head
+
+					// Read message
+					int copy_size = *args->Size < to_recv->Size ? *args->Size : to_recv->Size; // get smaller size
+					*args->Sender = to_recv->Sender; // assign sender's mailbox number
+					memcpy(to_recv->Message_Addr, args->Msg_addr, copy_size); // copy bytes
+
+					free(to_recv->Message_Addr);
+					free(to_recv); // release message
+					*args->Size = copy_size;
+				}
 			}
 			else
-			{
-				if (MAILBOXLIST[args->Recver].First_Message == MAILBOXLIST[args->Recver].Last_Message) // if last message in the queue
-				{
-					// clear the first and last flag
-					MAILBOXLIST[args->Recver].First_Message = NULL;
-					MAILBOXLIST[args->Recver].Last_Message = NULL;
-				}
-				else
-					MAILBOXLIST[args->Recver].First_Message = to_recv->Next; // assign new head
-
-				// Read message
-				int copy_size = *args->Size < to_recv->Size ? *args->Size : to_recv->Size; // get smaller size
-				*args->Sender = to_recv->Sender; // assign sender's mailbox number
-				memcpy(to_recv->Message_Addr, args->Msg_addr, copy_size); // copy bytes
-
-				free(to_recv); // release message
-				*args->Size = copy_size;
-			}
+				args->Size = INVALID_RECVER;
 
 			break;
 		}
 		case SEND:
 		{
+			SendMsgArgs* args = (RecvMsgArgs*)kcaptr->Arg1; // get the argument
+
+			if (MAILBOXLIST[args->Sender].Owner == RUNNING) // if sender is valid
+			{
+				PCB* recver = MAILBOXLIST[args->Recver].Owner;
+				if (recver != NULL)
+				{
+					if (recver->Mailbox_Wait == args->Recver && recver->Msg_Wait != NULL) // if receiver is blocked and waiting for this mailbox
+					{
+						
+					}
+					else // if is not waiting on this mailbox
+					{
+						// Add message to mailbox
+						Message* msg = malloc(sizeof(Message)); // create message struct
+						msg->Message_Addr = malloc(args->Size); // allocate message memory
+						memcpy(msg->Message_Addr, args->Msg_addr, args->Size); // copy from process stack to mailbox
+						msg->Size = args->Size; // store the size
+						msg->Sender = args->Sender; // store the sender's mailbox number
+						msg->Next = NULL; // to add to the end of message list
+
+						Message* mbx_last_msg = MAILBOXLIST[args->Recver].Last_Message;
+						if (mbx_last_msg == NULL) // if no message in mailbox
+						{
+							MAILBOXLIST[args->Recver].First_Message = msg; // update mailbox's first message pointer
+							mbx_last_msg = msg; // update mailbox's last message pointer
+						}
+						else
+						{
+							mbx_last_msg->Next = msg; // add to end on list
+							mbx_last_msg = msg; // update tail of list
+						}
+					}
+				}
+				else
+					args->Size = INVALID_RECVER;
+			}
+			else
+				args->Size = INVALID_SENDER;
 
 			break;
 		}

@@ -8,6 +8,12 @@
 #ifndef PKCALL_H_
 #define PKCALL_H_
 
+typedef enum
+{
+	INVALID_SENDER = -2,// invalid sender	(-2)
+	INVALID_RECVER		// invalid receiver (-1)
+} MsgRtnCode; // send message error code
+
 void Send(int recver, int sender, void* msg, int* size);
 void Receive(int recver, int* sender, void* msg, int* size);
 int Bind(int mbx);

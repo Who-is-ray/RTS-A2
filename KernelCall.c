@@ -12,6 +12,7 @@
 
 #define NVIC_SYS_PRI3_R (*((volatile unsigned long *) 0xE000ED20))
 #define PENDSV_LOWEST_PRIORITY 0x00E00000
+#define PRIORITY_MAX 5
 
 extern PCB* RUNNING;
 extern int PENDSV_ON;
@@ -66,15 +67,21 @@ void Terminate()
 
 int Nice(int new_priority)
 {
-	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
-	args.Code = NICE;
-	args.Arg1 = new_priority;
+	if (new_priority > 0 && new_priority <= PRIORITY_MAX)
+	{
+		volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
+		args.Code = NICE;
+		args.Arg1 = new_priority;
 
-	/* Assign address if getidarg to R7 */
-	AssignR7((unsigned long)&args);
+		/* Assign address if getidarg to R7 */
+		AssignR7((unsigned long)&args);
 
-    // Call Kernel
-	SVC();
+		// Call Kernel
+		SVC();
 
-	return args.RtnValue;
+		return args.RtnValue;
+
+	}
+	else
+		return FALSE;
 }
