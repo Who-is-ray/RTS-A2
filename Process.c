@@ -24,11 +24,7 @@ volatile PCB* RUNNING = NULL;
 // function of idle process
 void process_IDLE()
 {
-    while(1)
-    {
-        //OutputString("Idle");
-        //OutputNewLine();
-    }
+	while (1);
 }
 
 
@@ -146,7 +142,7 @@ unsigned long get_SP()
 }
 
 /// Testing
-//#define TEST_NICE
+#define TEST_NICE
 
 #ifdef TEST_NICE // Testing of Nice
 
