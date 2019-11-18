@@ -21,57 +21,6 @@ PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 // RUNNING Pcb
 volatile PCB* RUNNING = NULL;
 
-void process_1()
-{
-    Bind(6);
-    Bind(3);
-    Bind(12);
-	int mbx = Bind(11);
-    unsigned int i;
-	for (i=0; i < 20000; i++)
-	{
-	    UART0_DR_R = 'x';
-	}
-	Nice(5);
-	for (i=0; i < 20000; i++)
-	{
-		UART0_DR_R = 'x';
-	}
-	int msg;
-	int size;
-    int sender;
-    Receive(-1, &sender, &msg, &size);
-    Receive(-1, &sender, &msg, &size);
-    Nice(1);
-}
-
-void process_2()
-{
-    int i;
-    for (i=0; i < 2000; i++)
-    {
-        UART0_DR_R = 'y';
-    }
-	int mbx = Bind(2);
-	int msg1 = 123;
-	int msg2 = 789;
-	int size = sizeof(msg1);
-    Send(11, mbx, &msg1, &size);
-    Send(11, mbx, &msg2, &size);
-	while (1)
-	{
-	    UART0_DR_R = 'y';
-	}
-}
-
-void process_3()
-{
-	while (1)
-	{
-	    UART0_DR_R = 'z';
-	}
-}
-
 // function of idle process
 void process_IDLE()
 {
@@ -127,16 +76,6 @@ int reg_process(void (*func_name)(), int pid, int priority)
 		RUNNING = pcb;
 
 	return TRUE;
-}
-
-// Initialize all processes and force switch to thread mode
-void Initialize_Process()
-{
-	reg_process(process_IDLE, 0, 0); // register idle process
-	reg_process(process_1, 1, 4); // register process 1
-	reg_process(process_2, 2, 4); // register process 1
-	reg_process(process_3, 3, 4); // register process 1
-
 }
 
 // return pcb pointer of the first process below input priority
@@ -205,3 +144,119 @@ unsigned long get_SP()
 	__asm(" bx  lr");
 	return 0;
 }
+
+/// Testing
+//#define TEST_NICE
+
+#ifdef TEST_NICE // Testing of Nice
+
+void process_1()
+{
+	unsigned int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	Nice(5);
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	Nice(4);
+	while (TRUE)
+	{
+		UART0_DR_R = 'x';
+	}
+}
+
+void process_2()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_NICE
+
+
+#ifdef TEST_MESSAGE // Testing of Nice
+
+void process_1()
+{
+	Bind(6);
+	Bind(3);
+	Bind(12);
+	int mbx = Bind(11);
+	unsigned int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	Nice(5);
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	int msg;
+	int size;
+	int sender;
+	Receive(-1, &sender, &msg, &size);
+	Receive(-1, &sender, &msg, &size);
+	Nice(1);
+}
+
+void process_2()
+{
+	int i;
+	for (i = 0; i < 2000; i++)
+	{
+		UART0_DR_R = 'y';
+	}
+	int mbx = Bind(2);
+	int msg1 = 123;
+	int msg2 = 789;
+	int size = sizeof(msg1);
+	Send(11, mbx, &msg1, &size);
+	Send(11, mbx, &msg2, &size);
+	while (TRUE)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_NICE
