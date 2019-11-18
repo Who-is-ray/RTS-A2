@@ -21,38 +21,6 @@ PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 // RUNNING Pcb
 volatile PCB* RUNNING = NULL;
 
-//*********To Remove**********//
-#include "Queue.h"
-#include "Uart.h"
-#include "Systick.h"
-#include <string.h>
-
-#define LINE_FEED               10
-#define ENTER                   13
-
-/* Transmit a character*/
-void TransChar(char c)
-{
-    while(EnQueue(OUTPUT, UART, c)==FALSE); // wait until it is enqueued
-}
-
-/* Output a string*/
-void OutputString(const char* s)
-{
-    int i;
-    for(i = 0; i <= strlen(s); i++) // output each character in string
-        TransChar(s[i]);
-}
-
-/* Move cursor to new line*/
-void OutputNewLine()
-{
-    TransChar(ENTER);
-    TransChar(LINE_FEED);
-}
-
-//*********End To Remove**********//
-
 void process_1()
 {
     Bind(6);
@@ -112,6 +80,13 @@ void process_IDLE()
         //OutputString("Idle");
         //OutputNewLine();
     }
+}
+
+
+// Uart output process
+void process_UART_OUTPUT()
+{
+
 }
 
 int reg_process(void (*func_name)(), int pid, int priority)
