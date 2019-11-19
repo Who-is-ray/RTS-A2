@@ -7,6 +7,9 @@
 
 #include "Uart.h"
 #include "Queue.h"
+#include "PKCall.h"
+
+#define UART_ISR_MBX	31
 
 volatile int UART_STATUS = IDLE;
 
@@ -59,28 +62,21 @@ void UART0_IntDisable(unsigned long flags)
 
 void UART0_IntHandler(void)
 {
-/*
- * Simplified UART ISR - handles receive and xmit interrupts
- * Application signalled when data received
- */
-    //if (UART0_MIS_R & UART_INT_RX)
-    //{
-    //    /* RECV done - clear interrupt and make char available to application */
-    //    UART0_ICR_R |= UART_INT_RX;
-    //    EnQueue( INPUT, UART, UART0_DR_R);
-    //}
+	/*
+	 * Simplified UART ISR - handles receive and xmit interrupts
+	 * Application signalled when data received
+	 */ 
+	int msg = 0;
+	int size = sizeof(msg);
 
-    //if (UART0_MIS_R & UART_INT_TX)
-    //{
-    //    /* XMIT done - clear interrupt */
-    //    UART0_ICR_R |= UART_INT_TX;
+	if (UART0_MIS_R & UART_INT_TX)
+	{
+		/* XMIT done - clear interrupt */
+		UART0_ICR_R |= UART_INT_TX;
 
-    //    char data;
-    //    if(DeQueue(OUTPUT, UART, &data)) // if output queue is not empty
-    //        UART0_DR_R = data;  // transmit next data
-    //    else // if output queue is empty
-    //        UART_STATUS = IDLE; // idle
-    //}
+		// Notice UART process that XMIT done
+		Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
+	}
 }
 
 void InterruptMasterEnable(void)
@@ -94,29 +90,4 @@ void InterruptMasterDisable(void)
     /* disable CPU interrupts */
     __asm(" cpsid   i");
 }
-//void process_uart_output_ch(int row,int col,char c){
-//    //output a single character to specified screen position
-//    //cup is cursor position
-//    struct CUPch uart_data;
-//    uart_data.esc=ESC;
-//    uart_data.line[0]='0'+row/10;
-//    uart_date.line[1]='0'+row%10;
-//    uart_data.semicolon=';';
-//    uart_data.col[0]='0'+col/10;
-//    uart_data.col[1]='0'+col%10;
-//    uart_data.ch=ch;
-//    //return; either return from pkcall, or from arg and arg needs to be add the return element.
-//}
-//void output_char(void){
-//    int row=0;
-//    int col=0;
-//    volatile char ch;
-//    while(1){
-//        //receive from mail box
-//        //either mbx is not empty and send or mbx is empty blocked.
-//        /*
-//         * code
-//         */
-//        uart_output_char(row,col,ch);
-//    }
-//}
+

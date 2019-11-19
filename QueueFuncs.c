@@ -32,7 +32,7 @@ void Enqueue(void* _item, QueueItem** queue_head)
 void Dequeue(void* _item, QueueItem** queue_head)
 {
     QueueItem* item = (QueueItem*)_item;
-    if ((*queue_head)->Next == NULL) // if queue is empty, insert to queue
+    if ((*queue_head)->Next == (*queue_head)) // if has only one object, clear the queue
 	{
 		*queue_head = NULL;
 		item->Next = NULL;

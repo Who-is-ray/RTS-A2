@@ -15,6 +15,14 @@
 
 #define PSR_INITIAL_VAL		0x01000000
 #define INITIAL_STACK_TOP_OFFSET    960
+#define UART_OUTPUT_MBX	30
+#define UART_ISR_MBX	31
+#define	PID_1		1
+#define PID_2		2
+#define PID_3		3
+#define PID_IDLE	0
+#define PID_UART	4
+
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
@@ -26,33 +34,25 @@ void process_1()
     Bind(6);
     Bind(3);
     Bind(12);
+	char msg_x = 'x';
+	int size_x = sizeof(msg_x);
 	int mbx = Bind(11);
-    unsigned int i;
-	for (i=0; i < 20000; i++)
+    while(1)
 	{
-	    UART0_DR_R = 'x';
+		Send(UART_OUTPUT_MBX, mbx, &msg_x, &size_x);
 	}
-	Nice(5);
-	for (i=0; i < 20000; i++)
-	{
-		UART0_DR_R = 'x';
-	}
-	int msg;
-	int size;
-    int sender;
-    Receive(-1, &sender, &msg, &size);
-    Receive(-1, &sender, &msg, &size);
-    Nice(1);
 }
 
 void process_2()
 {
+	char msg_y = 'y';
+	int size_y = sizeof(msg_y);
+	int mbx = Bind(2);
     int i;
     for (i=0; i < 2000; i++)
     {
-        UART0_DR_R = 'y';
-    }
-	int mbx = Bind(2);
+		Send(UART_OUTPUT_MBX, mbx, &msg_y, &size_y);
+    }	
 	int msg1 = 123;
 	int msg2 = 789;
 	int size = sizeof(msg1);
@@ -60,15 +60,18 @@ void process_2()
     Send(11, mbx, &msg2, &size);
 	while (1)
 	{
-	    UART0_DR_R = 'y';
+		Send(UART_OUTPUT_MBX, mbx, &msg_y, &size_y);
 	}
 }
 
 void process_3()
 {
+	char msg_z = 'z';
+	int size_z = sizeof(msg_z);
+	int mbx = Bind(-1);
 	while (1)
 	{
-	    UART0_DR_R = 'z';
+		Send(UART_OUTPUT_MBX, mbx, &msg_z, &size_z);
 	}
 }
 
@@ -86,7 +89,19 @@ void process_IDLE()
 // Uart output process
 void process_UART_OUTPUT()
 {
+	int msg = 0;
+	int size = sizeof(msg);
+	int sender, null_sender, null_msg, null_size;
+	Bind(UART_ISR_MBX);
+	Bind(UART_OUTPUT_MBX);
+	Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
 
+	while (TRUE)
+	{
+		Receive(UART_OUTPUT_MBX, &sender, &msg, &size);
+		Receive(UART_ISR_MBX, &null_sender, &null_msg, &null_size);
+		UART0_DR_R = msg;
+	}
 }
 
 int reg_process(void (*func_name)(), int pid, int priority)
@@ -132,11 +147,11 @@ int reg_process(void (*func_name)(), int pid, int priority)
 // Initialize all processes and force switch to thread mode
 void Initialize_Process()
 {
-	reg_process(process_IDLE, 0, 0); // register idle process
-	reg_process(process_1, 1, 4); // register process 1
-	reg_process(process_2, 2, 4); // register process 1
-	reg_process(process_3, 3, 4); // register process 1
-
+	reg_process(process_IDLE, PID_IDLE, 0); // register idle process
+	reg_process(process_1, PID_1, 4); // register process 1
+	reg_process(process_2, PID_2, 4); // register process 1
+	reg_process(process_3, PID_3, 4); // register process 1
+	reg_process(process_UART_OUTPUT, PID_UART, 5); // register UART process, 
 }
 
 // return pcb pointer of the first process below input priority

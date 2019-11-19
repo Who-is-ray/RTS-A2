@@ -24,6 +24,7 @@ extern Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
 extern Mailbox* AVAILABLE_MAILBOX;
 
 volatile int FirstSVCall = FALSE;
+int UNBLOCK_PRIORITY = 0; //A global variable of the priority of unblocked process
 
 // function to block running process and switch to next process
 // if is terminate, free the memory
@@ -325,6 +326,9 @@ void SVCHandler(Stack *argptr)
 
 						// Unblock process
 						Enqueue(recver, (QueueItem**)& (PRIORITY_LIST[recver->Priority])); // add back to process queue
+						recver->Mailbox_Wait = NULL;
+						recver->Msg_Wait = NULL;
+						UNBLOCK_PRIORITY = recver->Priority;
 					}
 					else // if is not waiting on this mailbox
 					{
@@ -368,14 +372,15 @@ void PendSV_Handler()
 {
     PENDSV_ON = TRUE;
 
-	//RUNNING->PSP = (Stack*)(get_PSP()-NUM_OF_SW_PUSH_REG*sizeof(unsigned long));
-
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
+	RUNNING->PSP = (Stack*)get_PSP(); // update PSP
 
-	RUNNING->PSP = (Stack*)get_PSP();
 	// get next running process
-	RUNNING = RUNNING->Next;
+	if (UNBLOCK_PRIORITY > RUNNING->Priority)
+		RUNNING = PRIORITY_LIST[UNBLOCK_PRIORITY];
+	else
+		RUNNING = RUNNING->Next;
 
 	// Update PSP value
 	set_PSP((unsigned long)(RUNNING->PSP));
