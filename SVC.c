@@ -28,8 +28,15 @@ int UNBLOCK_PRIORITY = 0; //A global variable of the priority of unblocked proce
 
 // function to block running process and switch to next process
 // if is terminate, free the memory
-void BlockRunningProcess(int isTerminate)
+void BlockRunningProcess(RecvMsgArgs* args)
 {
+	if (args != NULL) // if not for termination
+	{
+		// Save waiting message info
+		RUNNING->Mailbox_Wait = args->Recver;
+		RUNNING->Msg_Wait = args;
+	}
+
 	PCB* terminated = RUNNING;
 	if (RUNNING == RUNNING->Next) // the only process in the queue
 		RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
@@ -40,7 +47,7 @@ void BlockRunningProcess(int isTerminate)
 
 	Dequeue(terminated, (QueueItem**) & (PRIORITY_LIST[terminated->Priority]));
 
-	if (isTerminate)
+	if (args == NULL) // if is termination only
 	{
 		free(terminated->StackTop); // free the stack
 		free(terminated);	// free the pcb
@@ -182,7 +189,7 @@ void SVCHandler(Stack *argptr)
 		}
 		case TERMINATE:
 		{
-			BlockRunningProcess(TRUE);
+			BlockRunningProcess(NULL);
 
 			break;
 		}
@@ -277,8 +284,12 @@ void SVCHandler(Stack *argptr)
 						}
 						
 						mbx = mbx->Next;
-						if (mbx == head) // if searched all mailboxes
+						if (mbx == head) // if searched all mailboxes, no message
+						{
+						    // Block running
+						    BlockRunningProcess(args);
 							break;
+						}
 					}
 				}
 				else
@@ -290,13 +301,8 @@ void SVCHandler(Stack *argptr)
 				{
 					if (MAILBOXLIST[args->Recver].First_Message == NULL) // if no message waiting, block
 					{
-						// Save waiting message info
-						PCB* recver = MAILBOXLIST[args->Recver].Owner;
-						recver->Mailbox_Wait = args->Recver;
-						recver->Msg_Wait = args;
-
 						// Block running
-						BlockRunningProcess(FALSE);
+						BlockRunningProcess(args);
 					}
 					else // has message, copy to process stack
 						ReceiveMsgFromMailbox(args, &MAILBOXLIST[args->Recver]);
@@ -315,7 +321,7 @@ void SVCHandler(Stack *argptr)
 				PCB* recver = MAILBOXLIST[args->Recver].Owner;
 				if (recver != NULL) // if receiver is valid
 				{
-					if (recver->Mailbox_Wait == args->Recver && recver->Msg_Wait != NULL) // if receiver is blocked and waiting for this mailbox
+					if ((recver->Mailbox_Wait == args->Recver || recver->Mailbox_Wait == ANYMAILBOX) && recver->Msg_Wait != NULL) // if receiver is blocked and waiting for this mailbox
 					{
 						RecvMsgArgs* receiver_waiting = recver->Msg_Wait;
 						int copy_size = *args->Size < *receiver_waiting->Size ? *args->Size : *receiver_waiting->Size; // get smaller size
