@@ -224,7 +224,7 @@ void Initialize_Process()
 void process_1()
 {
 	unsigned int i;
-	for (i = 0; i < 20000; i++)
+	for (i = 0; i < 40000; i++)
 	{
 		UART0_DR_R = 'x';
 	}
@@ -234,7 +234,7 @@ void process_1()
 void process_2()
 {
 	unsigned int i;
-	for (i = 0; i < 40000; i++)
+	for (i = 0; i < 80000; i++)
 	{
 		UART0_DR_R = 'y';
 	}
