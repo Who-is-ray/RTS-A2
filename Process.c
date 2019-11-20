@@ -278,9 +278,15 @@ void process_1()
 	int size_rec = sizeof(msg_rec);
 	int sender;
 	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+
 	while (TRUE)
 	{
-		Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+        Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
 }
 
@@ -296,6 +302,10 @@ void process_2()
 	}
 	char msg_send = 'A';
 	int size_send = sizeof(msg_send);
+	Send(PROCESS_1_MBX, mbx, &msg_send, &size_send); // send message to process 1
+	msg_send = 'B';
+	Send(PROCESS_1_MBX, mbx, &msg_send, &size_send); // send message to process 1
+	msg_send = 'C';
 	Send(PROCESS_1_MBX, mbx, &msg_send, &size_send); // send message to process 1
 	while (TRUE)
 	{
