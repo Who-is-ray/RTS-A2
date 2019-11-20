@@ -166,8 +166,8 @@ unsigned long get_SP()
 
 /// Testing
 //#define TEST_NICE
-//#define TEST_TERMINATION
-#define TEST_BIND_SEND_RECEIVE
+#define TEST_TERMINATION
+//#define TEST_BIND_SEND_RECEIVE
 //#define TEST_BLOCK_UNBLOCK
 
 #ifdef TEST_NICE // Testing of Nice
@@ -224,19 +224,21 @@ void Initialize_Process()
 void process_1()
 {
 	unsigned int i;
-	for (i = 0; i < 10000; i++)
+	for (i = 0; i < 20000; i++)
 	{
 		UART0_DR_R = 'x';
 	}
+	i++;
 }
 
 void process_2()
 {
 	unsigned int i;
-	for (i = 0; i < 20000; i++)
+	for (i = 0; i < 40000; i++)
 	{
 		UART0_DR_R = 'y';
 	}
+	i++;
 }
 
 void process_3()
