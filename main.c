@@ -9,6 +9,8 @@
  */
 
 #include <stdio.h>
+#include "Uart.h"
+#include "Queue.h"
 #include "Message.h"
 #include "KernelCall.h"
 #include "Process.h"
@@ -18,7 +20,8 @@ extern int FirstSVCall;
 void main (void)
  {
 	/* Initialization Uart, Systick and Queues. Enable interrupts*/
-	// To update
+	UART0_Init(); // initialize Uart
+	Queue_Init(); // initialize queue
 	MailboxListIntialization(); // Initialize mailbox list
 	KernelInitialization(); // Initialize Kernel
 	enable();    // Enable Master (CPU) Interrupts

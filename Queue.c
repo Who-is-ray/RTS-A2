@@ -5,6 +5,7 @@
  *      Author: Ray
  */
 
+#include <string.h>
 #include "Queue.h"
 #include "Uart.h"
 
@@ -100,4 +101,21 @@ int DeQueue(QueueType t, Source* s, char* v)
         }
     }
     return TRUE;
+}
+
+/* Transmit a character*/
+void TransChar(char c)
+{
+	while (EnQueue(OUTPUT, UART, c) == FALSE); // wait until it is enqueued
+}
+
+/* Output a string*/
+void OutputData(char* s, int size)
+{
+	int i;
+	for (i = 0; i < size; i++) // output each character in string
+	{
+		TransChar(*s);
+		s++;
+	}
 }

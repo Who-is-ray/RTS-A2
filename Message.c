@@ -29,9 +29,9 @@ void EnqueueMbxToAvailable(Mailbox* mbx, Mailbox** queue_head)
 	// release all message
 	while (mbx->First_Message != NULL)
 	{
-		Message* next = mbx->First_Message->Next;
-		free(mbx->First_Message);
-		mbx->First_Message = next;
+		Message* next = mbx->First_Message->Next; // get the first msg
+		free(mbx->First_Message); // free msg
+		mbx->First_Message = next; // update head
 	}
 }
 
@@ -41,7 +41,7 @@ void MailboxListIntialization()
 	for (i = 0; i < MAILBOXLIST_SIZE; i++)
 	{
 		MAILBOXLIST[i].ID = i;
-		EnqueueMbxToAvailable(&MAILBOXLIST[i],&AVAILABLE_MAILBOX); // Add to Available maibox list
+		EnqueueMbxToAvailable(&MAILBOXLIST[i],&AVAILABLE_MAILBOX); // Add to Available mailbox list
 	}
 }
 

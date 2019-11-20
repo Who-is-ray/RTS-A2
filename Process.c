@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "Queue.h"
 #include "process.h"
 #include "KernelCall.h"
 #include "PKCall.h"
@@ -15,8 +16,7 @@
 
 #define PSR_INITIAL_VAL		0x01000000
 #define INITIAL_STACK_TOP_OFFSET    960
-#define UART_OUTPUT_MBX	30
-#define UART_ISR_MBX	31
+#define UART_OUTPUT_MBX	31
 #define	PID_1		1
 #define PID_2		2
 #define PID_3		3
@@ -38,21 +38,18 @@ void process_IDLE()
 	while (1);
 }
 
-
 // Uart output process
 void process_UART_OUTPUT()
 {
 	int msg = 0;
 	int size = sizeof(msg);
 	int sender;// null_sender, null_msg, null_size;
-	Bind(UART_ISR_MBX);
 	Bind(UART_OUTPUT_MBX);
-	Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
 
 	while (TRUE)
 	{
 		Receive(UART_OUTPUT_MBX, &sender, &msg, &size);
-		UART0_DR_R = msg;
+		OutputData((char*)&msg, sizeof(msg));
 	}
 
 }
@@ -214,6 +211,7 @@ void Initialize_Process()
 	reg_process(process_1, 1, 3); // register process 1
 	reg_process(process_2, 2, 3); // register process 1
 	reg_process(process_3, 3, 3); // register process 1
+	reg_process(process_UART_OUTPUT, 4,5);
 }
 
 #endif // TEST_NICE
@@ -223,29 +221,38 @@ void Initialize_Process()
 
 void process_1()
 {
+	int mbx = Bind(1);
+	int msg = 'x';
+	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 40000; i++)
+	for (i = 0; i < 500; i++)
 	{
-		UART0_DR_R = 'x';
+		Send(UART_OUTPUT_MBX, mbx, &msg, &size);
 	}
 	i++;
 }
 
 void process_2()
 {
+	int mbx = Bind(2);
+	int msg = 'y';
+	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 80000; i++)
+	for (i = 0; i < 1000; i++)
 	{
-		UART0_DR_R = 'y';
+		Send(UART_OUTPUT_MBX, mbx, &msg, &size);
 	}
 	i++;
 }
 
 void process_3()
 {
+	int mbx = Bind(3);
+	int msg = 'z';
+	int size = sizeof(msg);
 	while (TRUE)
 	{
-		UART0_DR_R = 'z';
+		Send(UART_OUTPUT_MBX, mbx, &msg, &size);
 	}
 }
 
@@ -256,6 +263,7 @@ void Initialize_Process()
 	reg_process(process_1, 1, 3); // register process 1
 	reg_process(process_2, 2, 3); // register process 1
 	reg_process(process_3, 3, 3); // register process 1
+    reg_process(process_UART_OUTPUT, 4,5);
 }
 
 #endif // TEST_TERMINATION

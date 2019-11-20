@@ -39,9 +39,12 @@ void BlockRunningProcess(RecvMsgArgs* args)
 
 	PCB* terminated = RUNNING;
 	if (RUNNING == RUNNING->Next) // the only process in the queue
+	{
+		PRIORITY_LIST[RUNNING->Priority] = NULL; // clear the head
 		RUNNING = CheckLowerPriorityProcess(RUNNING->Priority); // chech lowere priority queue
+	}
 	else
-		RUNNING = RUNNING->Next;
+		RUNNING = RUNNING->Next; // update RUNNING
 
 	set_PSP((unsigned long)(RUNNING->PSP));
 
@@ -381,6 +384,8 @@ void PendSV_Handler()
 	/* Save running process */
 	save_registers(); /* Save active CPU registers in PCB */
 	RUNNING->PSP = (Stack*)get_PSP(); // update PSP
+
+	PRIORITY_LIST[RUNNING->Priority] = RUNNING->Next; // Update the head of queue
 
 	// get next running process
 	if (UNBLOCK_PRIORITY > RUNNING->Priority)
