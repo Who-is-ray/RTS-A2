@@ -22,6 +22,9 @@
 #define PID_3		3
 #define PID_IDLE	0
 #define PID_UART	4
+#define PROCESS_1_MBX	1
+#define PROCESS_2_MBX	2
+#define PROCESS_3_MBX	3
 
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -29,60 +32,10 @@ PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
 // RUNNING Pcb
 volatile PCB* RUNNING = NULL;
 
-void process_1()
-{
-    Bind(6);
-    Bind(3);
-    Bind(12);
-	char msg_x = 'x';
-	int size_x = sizeof(msg_x);
-	int mbx = Bind(11);
-    while(1)
-	{
-		Send(UART_OUTPUT_MBX, mbx, &msg_x, &size_x);
-	}
-}
-
-void process_2()
-{
-	char msg_y = 'y';
-	int size_y = sizeof(msg_y);
-	int mbx = Bind(2);
-    int i;
-    for (i=0; i < 2000; i++)
-    {
-		Send(UART_OUTPUT_MBX, mbx, &msg_y, &size_y);
-    }	
-	int msg1 = 123;
-	int msg2 = 789;
-	int size = sizeof(msg1);
-    Send(11, mbx, &msg1, &size);
-    Send(11, mbx, &msg2, &size);
-	while (1)
-	{
-		Send(UART_OUTPUT_MBX, mbx, &msg_y, &size_y);
-	}
-}
-
-void process_3()
-{
-	char msg_z = 'z';
-	int size_z = sizeof(msg_z);
-	int mbx = Bind(-1);
-	while (1)
-	{
-		Send(UART_OUTPUT_MBX, mbx, &msg_z, &size_z);
-	}
-}
-
 // function of idle process
 void process_IDLE()
 {
-    while(1)
-    {
-        //OutputString("Idle");
-        //OutputNewLine();
-    }
+	while (1);
 }
 
 
@@ -91,7 +44,7 @@ void process_UART_OUTPUT()
 {
 	int msg = 0;
 	int size = sizeof(msg);
-	int sender, null_sender, null_msg, null_size;
+	int sender;// null_sender, null_msg, null_size;
 	Bind(UART_ISR_MBX);
 	Bind(UART_OUTPUT_MBX);
 	Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
@@ -142,16 +95,6 @@ int reg_process(void (*func_name)(), int pid, int priority)
 		RUNNING = pcb;
 
 	return TRUE;
-}
-
-// Initialize all processes and force switch to thread mode
-void Initialize_Process()
-{
-	reg_process(process_IDLE, PID_IDLE, 0); // register idle process
-	reg_process(process_1, PID_1, 4); // register process 1
-	reg_process(process_2, PID_2, 4); // register process 1
-	reg_process(process_3, PID_3, 4); // register process 1
-	reg_process(process_UART_OUTPUT, PID_UART, 5); // register UART process, 
 }
 
 // return pcb pointer of the first process below input priority
@@ -220,3 +163,209 @@ unsigned long get_SP()
 	__asm(" bx  lr");
 	return 0;
 }
+
+/// Testing
+//#define TEST_NICE
+//#define TEST_TERMINATION
+//#define TEST_BIND_SEND_RECEIVE
+#define TEST_BLOCK_UNBLOCK
+
+#ifdef TEST_NICE // Testing of Nice
+
+void process_1()
+{
+	unsigned int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	Nice(5);
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	Nice(4);
+	while (TRUE)
+	{
+		UART0_DR_R = 'x';
+	}
+}
+
+void process_2()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_NICE
+
+
+#ifdef TEST_TERMINATION // Testing of Nice
+
+void process_1()
+{
+	unsigned int i;
+	for (i = 0; i < 10000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+}
+
+void process_2()
+{
+	unsigned int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_TERMINATION
+
+#ifdef TEST_BIND_SEND_RECEIVE
+
+void process_1()
+{
+	int mbx = Bind(PROCESS_1_MBX);
+	unsigned int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	char msg;
+	int size;
+	int sender;
+	Receive(ANYMAILBOX, &sender, &msg, &size);
+	while (TRUE)
+	{
+		UART0_DR_R = msg;
+	}
+}
+
+void process_2()
+{
+	int i;
+	for (i = 0; i < 2000; i++)
+	{
+		UART0_DR_R = 'y';
+	}
+	int mbx = Bind(PROCESS_2_MBX);
+	char msg = 'A';
+	int size = sizeof(msg);
+	Send(PROCESS_1_MBX, mbx, &msg, &size);
+	while (TRUE)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_BIND_SEND_RECEIVE
+
+#ifdef TEST_BLOCK_UNBLOCK
+
+void process_1()
+{
+	Bind(PROCESS_1_MBX);
+	unsigned int i;
+	for (i = 0; i < 200; i++)
+	{
+		UART0_DR_R = 'x';
+	}
+	char msg;
+	int size = sizeof(msg);
+	int sender;	
+	Receive(ANYMAILBOX, &sender, &msg, &size);
+	while (TRUE)
+	{
+		UART0_DR_R = msg;
+	}
+}
+
+void process_2()
+{
+	int i;
+	for (i = 0; i < 20000; i++)
+	{
+		UART0_DR_R = 'y';
+	}
+	int mbx = Bind(2);
+	char msg = 'A';
+	int size = sizeof(msg);
+	Send(PROCESS_1_MBX, mbx, &msg, &size);
+	while (TRUE)
+	{
+		UART0_DR_R = 'y';
+	}
+}
+
+void process_3()
+{
+	while (TRUE)
+	{
+		UART0_DR_R = 'z';
+	}
+}
+
+// Initialize all processes and force switch to thread mode
+void Initialize_Process()
+{
+	reg_process(process_IDLE, 0, 0); // register idle process
+	reg_process(process_1, 1, 3); // register process 1
+	reg_process(process_2, 2, 3); // register process 1
+	reg_process(process_3, 3, 3); // register process 1
+}
+
+#endif // TEST_BLOCK_UNBLOCK

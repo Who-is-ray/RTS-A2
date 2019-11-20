@@ -268,7 +268,7 @@ void SVCHandler(Stack *argptr)
 				if (head != NULL) // if bound to at least one mailbox
 				{
 					Mailbox* mbx = head;
-					while (1) // search each mailbox
+					while (TRUE) // search each mailbox
 					{
 						if (mbx->First_Message != NULL) // if have message in mailbox
 						{
