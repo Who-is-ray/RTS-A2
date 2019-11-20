@@ -99,9 +99,9 @@ void process_UART_OUTPUT()
 	while (TRUE)
 	{
 		Receive(UART_OUTPUT_MBX, &sender, &msg, &size);
-		Receive(UART_ISR_MBX, &null_sender, &null_msg, &null_size);
 		UART0_DR_R = msg;
 	}
+
 }
 
 int reg_process(void (*func_name)(), int pid, int priority)

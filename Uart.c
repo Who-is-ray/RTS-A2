@@ -66,17 +66,17 @@ void UART0_IntHandler(void)
 	 * Simplified UART ISR - handles receive and xmit interrupts
 	 * Application signalled when data received
 	 */ 
-	int msg = 0;
-	int size = sizeof(msg);
+	//int msg = 0;
+	//int size = sizeof(msg);
 
-	if (UART0_MIS_R & UART_INT_TX)
-	{
-		/* XMIT done - clear interrupt */
-		UART0_ICR_R |= UART_INT_TX;
+	//if (UART0_MIS_R & UART_INT_TX)
+	//{
+	//	/* XMIT done - clear interrupt */
+	//	UART0_ICR_R |= UART_INT_TX;
 
-		// Notice UART process that XMIT done
-		Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
-	}
+	//	// Notice UART process that XMIT done
+	//	Send(UART_ISR_MBX, UART_ISR_MBX, &msg, &size);
+	//}
 }
 
 void InterruptMasterEnable(void)
