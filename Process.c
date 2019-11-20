@@ -167,8 +167,8 @@ unsigned long get_SP()
 /// Testing
 //#define TEST_NICE
 //#define TEST_TERMINATION
-//#define TEST_BIND_SEND_RECEIVE
-#define TEST_BLOCK_UNBLOCK
+#define TEST_BIND_SEND_RECEIVE
+//#define TEST_BLOCK_UNBLOCK
 
 #ifdef TEST_NICE // Testing of Nice
 
@@ -269,7 +269,7 @@ void process_1()
 		UART0_DR_R = 'x';
 	}
 	char msg;
-	int size;
+	int size = sizeof(msg);
 	int sender;
 	Receive(ANYMAILBOX, &sender, &msg, &size);
 	while (TRUE)
