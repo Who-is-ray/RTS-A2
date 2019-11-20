@@ -277,11 +277,11 @@ void process_1()
 	char msg_rec;
 	int size_rec = sizeof(msg_rec);
 	int sender;
-	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
-	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
-	Receive(ANYMAILBOX, &sender, &msg_rec, &size); // receive message
+	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
 
 	while (TRUE)
