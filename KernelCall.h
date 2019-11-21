@@ -1,10 +1,14 @@
 /*
- * KernelCall.h
- *
- *  Created on: Nov 1, 2019
- *      Author: Ray, Victor
+ *File name: KernelCall.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: support for kernel call
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
-
 #ifndef KERNELCALL_H_
 #define KERNELCALL_H_
 

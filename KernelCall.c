@@ -1,10 +1,15 @@
 /*
- * KernelCall.c
- *
- *  Created on: Nov 1, 2019
- *      Author: Ray, Victor
+**
+ *File name: KernelCall.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: this file contains the initialization of the kernel and all the features that kernel has.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
-
 #include <stdio.h>
 #include "KernelCall.h"
 #include "Process.h"
@@ -42,22 +47,22 @@ void AssignR7(volatile unsigned long data)
 
 // Get ID Kernal call
 int GetID()
-{
+{//get the id of the process
     volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
 	args.Code = GETID;
 
     /* Assign address if getidarg to R7 */
     AssignR7((unsigned long) &args);
 
-    // Call Kernel
+    // Call Kernel through the service routine call
 	SVC();
 
-    return args.RtnValue;
+    return args.RtnValue;//contain the id of the process
 }
 
 // Termination kernal call
 void Terminate()
-{
+{// therminate the process
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
 	args.Code = TERMINATE;
 
@@ -65,13 +70,13 @@ void Terminate()
 	AssignR7((unsigned long)&args);
 
 	// No need to update PSP value here, because we will not return to this process again
-
+//call the service routine call to terminate the process in kernel space
 	SVC();
 }
 
 // Nice kernal call
 int Nice(int new_priority)
-{
+{//function that change the priority of a process
 	if (new_priority > 0 && new_priority <= PRIORITY_MAX)
 	{
 		volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
@@ -84,9 +89,9 @@ int Nice(int new_priority)
 		// Call Kernel
 		SVC();
 
-		return args.RtnValue;
+		return args.RtnValue;// returns the priority that changes to
 
 	}
 	else
-		return FALSE;
+		return FALSE;// tell the process failed to change the priority
 }

@@ -1,10 +1,14 @@
 /*
- * QueueFuncs.h
- *
- *  Created on: Nov 6, 2019
- *      Author: Ray
+ *File name: Queuefuncs.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: this is not for queue.c. this header file is support for process' queue, the queuefuncs.c
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
-
 #ifndef QUEUEFUNCS_H_
 #define QUEUEFUNCS_H_
 

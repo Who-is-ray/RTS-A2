@@ -1,10 +1,14 @@
 /*
- * Process.c
- *
- *  Created on: Oct 31, 2019
- *      Author: Ray
+ *File name: Process.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: includes registration of process that can put process in the running queue. And processes itself.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.20
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "Queue.h"

@@ -1,11 +1,13 @@
 /**
- * Real Time System Assignment 2
- *
- * This program is a
- *
- * Author:	Ray		Su	B00634512
-			Victor	Gao	B00
- * Fall 2019
+ *File name: Main.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: This is main function of the code, it calls the functions in specific sequence.
+ *Author:	Ray		Su	B00634512
+			Victor	Gao	B00677182
+ *Last day modified: Oct.23
  */
 
 #include <stdio.h>

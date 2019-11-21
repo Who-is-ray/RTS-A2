@@ -1,10 +1,14 @@
 /*
- * Message.c
- *
- *  Created on: Nov 4, 2019
- *      Author: Ray, Victor
+ *File name: Message.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: initialization of the mailbox list
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.19
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "Message.h"

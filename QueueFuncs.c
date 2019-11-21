@@ -1,10 +1,14 @@
 /*
- * QueueFuncs.c
- *
- *  Created on: Nov 6, 2019
- *      Author: Ray
+ *File name: Queuefuncs.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: this is enque and dequeue the processes in process list
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
-
 #include <stdio.h>
 #include "QueueFuncs.h"
 
