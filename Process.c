@@ -16,7 +16,6 @@
 
 #define PSR_INITIAL_VAL		0x01000000
 #define INITIAL_STACK_TOP_OFFSET    960
-#define UART_OUTPUT_MBX	20
 #define	PID_1		1
 #define PID_2		2
 #define PID_3		3
@@ -29,7 +28,7 @@
 #define PRIORITY_4		4
 #define PRIORITY_UART	5
 #define PRIORITY_IDLE	0
-
+#define OUTPUT_COUNT    10000
 
 // create and initialize priority list
 PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE] = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -40,7 +39,19 @@ volatile PCB* RUNNING = NULL;
 // function of idle process
 void process_IDLE()
 {
-	while (1);
+    int mbx = Bind(PROCESS_1_MBX);
+    int msg = '_';
+    int size = sizeof(msg);
+	while (1)
+	{
+        Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
+	}
+}
+
+void wait_a_bit()
+{
+    int i;
+    for (i = 0; i <100; i++);
 }
 
 // Uart output process
@@ -180,12 +191,12 @@ void process_1()
 	int msg = 'x';
 	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 500; i++)
+	for (i = 0; i < 2*OUTPUT_COUNT; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
 	Nice(PRIORITY_4);
-	for (i = 0; i < 500; i++)
+	for (i = 0; i < 2*OUTPUT_COUNT; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
@@ -229,7 +240,7 @@ void process_1()
 	int msg = 'x';
 	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 500; i++)
+	for (i = 0; i < 2*OUTPUT_COUNT; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
@@ -242,7 +253,7 @@ void process_2()
 	int msg = 'y';
 	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 1000; i++)
+	for (i = 0; i < OUTPUT_COUNT*4; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
@@ -254,10 +265,12 @@ void process_3()
 	int mbx = Bind(PROCESS_3_MBX); // bind mailbox
 	int msg = 'z';
 	int size = sizeof(msg);
-	while (TRUE)
+	int i;
+	for (i = 0; i < OUTPUT_COUNT*8; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
+	i++;
 }
 
 #endif // TEST_TERMINATION
@@ -270,17 +283,21 @@ void process_1()
 	int msg = 'x';
 	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 1500; i++)
+	for (i = 0; i < OUTPUT_COUNT*4; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
 	char msg_rec;
 	int size_rec = sizeof(msg_rec);
 	int sender;
+
+	//wait_a_bit();
 	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+	wait_a_bit();
 	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
+	wait_a_bit();
 	Receive(ANYMAILBOX, &sender, &msg_rec, &size_rec); // receive message
 	Send(UART_OUTPUT_MBX, mbx, &msg_rec, &size_rec); // output message
 
@@ -296,7 +313,7 @@ void process_2()
 	int msg = 'y';
 	int size = sizeof(msg);
 	int i;
-	for (i = 0; i < 500; i++)
+	for (i = 0; i < OUTPUT_COUNT*2; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
@@ -334,7 +351,7 @@ void process_1()
 	int msg = 'x';
 	int size = sizeof(msg);
 	unsigned int i;
-	for (i = 0; i < 200; i++)
+	for (i = 0; i < OUTPUT_COUNT*2; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
@@ -344,7 +361,7 @@ void process_1()
 	Receive(ANYMAILBOX, &sender, &msg_recv, &size_recv); // check receive message
 	while (TRUE)
 	{
-		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
+		Send(UART_OUTPUT_MBX, mbx, &msg_recv, &size_recv); // output message
 	}
 }
 
@@ -354,7 +371,7 @@ void process_2()
 	int msg = 'y';
 	int size = sizeof(msg);
 	int i;
-	for (i = 0; i < 20000; i++)
+	for (i = 0; i < OUTPUT_COUNT*4; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}

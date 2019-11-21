@@ -22,6 +22,7 @@
 #define NUM_OF_SW_PUSH_REG  8
 #define PRIORITY_LIST_SIZE  6
 #define ANYMAILBOX -1 // Mailbox number for bind any available mailbox
+#define UART_OUTPUT_MBX 20
 
 typedef struct __PCB PCB;
 

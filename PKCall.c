@@ -9,6 +9,7 @@
 #include "PKCall.h"
 #include "KernelCall.h"
 #include "Process.h"
+#include "Uart.h"
 
 extern PCB* RUNNING;
 
@@ -33,9 +34,18 @@ int PKCall(KernelCallCode code, int pkmsg)
 
 int Send(int recver, int sender, void* msg, int* size)
 {
-	SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
-	PKCall(SEND, (int)&arg);
-	return *arg.Size;
+    if(recver == UART_OUTPUT_MBX)
+    {
+        UART0_DR_R = *((int*)(msg));
+        return TRUE;
+    }
+    else
+    {
+        SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
+        PKCall(SEND, (int)&arg);
+
+        return *arg.Size;
+    }
 }
 
 int Receive(int recver, int* sender, void* msg, int* size)
