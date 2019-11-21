@@ -167,9 +167,9 @@ unsigned long get_SP()
 }
 
 /// Testing
-//#define TEST_NICE
+#define TEST_NICE
 //#define TEST_TERMINATION
-#define TEST_BIND_SEND_RECEIVE
+//#define TEST_BIND_SEND_RECEIVE
 //#define TEST_BLOCK_UNBLOCK
 
 #ifdef TEST_NICE // Testing of Nice
