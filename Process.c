@@ -14,21 +14,21 @@
 #include "Uart.h"
 #include "QueueFuncs.h"
 
-#define PSR_INITIAL_VAL		0x01000000
-#define INITIAL_STACK_TOP_OFFSET    960
-#define UART_OUTPUT_MBX	20
-#define	PID_1		1
-#define PID_2		2
-#define PID_3		3
-#define PID_IDLE	0
-#define PID_UART	4
-#define PROCESS_1_MBX	1
-#define PROCESS_2_MBX	2
-#define PROCESS_3_MBX	3
-#define PRIORITY_3		3
-#define PRIORITY_4		4
-#define PRIORITY_UART	5
-#define PRIORITY_IDLE	0
+#define PSR_INITIAL_VAL		0x01000000 // PSR initial value
+#define INITIAL_STACK_TOP_OFFSET    960 //stack top offset of stack pointer
+#define UART_OUTPUT_MBX	20 //Uart output mailbox number
+#define	PID_1		1 //process id 1
+#define PID_2		2 //process id 2
+#define PID_3		3 //process id 3
+#define PID_IDLE	0 //process id Idle
+#define PID_UART	4 //process id Uart
+#define PROCESS_1_MBX	1  //process mailbox 1
+#define PROCESS_2_MBX	2  //process mailbox 2
+#define PROCESS_3_MBX	3  //process mailbox 3
+#define PRIORITY_3		3  //priority 3
+#define PRIORITY_4		4  //priority 4
+#define PRIORITY_UART	5  //priority Idle
+#define PRIORITY_IDLE	0  //priority Uart
 
 
 // create and initialize priority list
@@ -49,16 +49,17 @@ void process_UART_OUTPUT()
 	int msg = 0;
 	int size = sizeof(msg);
 	int sender;// null_sender, null_msg, null_size;
-	Bind(UART_OUTPUT_MBX);
+	Bind(UART_OUTPUT_MBX); // bind mailbox
 
-	while (TRUE)
+	while (TRUE) // keep checking mailbox
 	{
-		Receive(UART_OUTPUT_MBX, &sender, &msg, &size);
-		OutputData((char*)&msg, sizeof(msg));
+		Receive(UART_OUTPUT_MBX, &sender, &msg, &size); // get message
+		OutputData((char*)&msg, sizeof(msg)); // output message
 	}
 
 }
 
+// registrate process
 int reg_process(void (*func_name)(), int pid, int priority)
 {
 	PCB* pcb = (PCB*)malloc(sizeof(PCB)); // Allocate memory for pcb
@@ -105,8 +106,8 @@ PCB* CheckLowerPriorityProcess(int priority)
 	int i;
 	for (i = priority - 1; i >= 0; i--) // check lower priority
 	{
-		if (PRIORITY_LIST[i] != NULL)
-			return PRIORITY_LIST[i];
+		if (PRIORITY_LIST[i] != NULL) // if find one
+			return PRIORITY_LIST[i]; // return found process
 	}
 	return NULL; // return null if no process left, includes idle process
 }
@@ -176,7 +177,7 @@ unsigned long get_SP()
 
 void process_1()
 {
-	int mbx = Bind(PROCESS_1_MBX);
+	int mbx = Bind(PROCESS_1_MBX); // bind mailbox
 	int msg = 'x';
 	int size = sizeof(msg);
 	unsigned int i;
@@ -184,12 +185,12 @@ void process_1()
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
-	Nice(PRIORITY_4);
+	Nice(PRIORITY_4); // increase priority to 4
 	for (i = 0; i < 500; i++)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message
 	}
-	Nice(PRIORITY_3);
+	Nice(PRIORITY_3); // change priority back to 3
 	while (TRUE)
 	{
 		Send(UART_OUTPUT_MBX, mbx, &msg, &size); // output message

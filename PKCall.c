@@ -2,7 +2,7 @@
  * PKCall.c
  *
  *  Created on: Nov 4, 2019
- *      Author: Ray
+ *      Author: Ray, Victor
  */
 
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include "KernelCall.h"
 #include "Process.h"
 
-extern PCB* RUNNING;
+extern PCB* RUNNING; // RUNNING process
 
 int PKCall(KernelCallCode code, int pkmsg)
 {
@@ -31,6 +31,7 @@ int PKCall(KernelCallCode code, int pkmsg)
 	return arg.RtnValue;
 }
 
+// Send message
 int Send(int recver, int sender, void* msg, int* size)
 {
 	SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
@@ -38,6 +39,7 @@ int Send(int recver, int sender, void* msg, int* size)
 	return *arg.Size;
 }
 
+// Receive message
 int Receive(int recver, int* sender, void* msg, int* size)
 {
 	RecvMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
@@ -45,6 +47,7 @@ int Receive(int recver, int* sender, void* msg, int* size)
 	return *arg.Size;
 }
 
+// bind mailbox
 int Bind(int mbx)
 {
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
@@ -62,6 +65,7 @@ int Bind(int mbx)
 	return args.RtnValue;
 }
 
+// Unbind mailbox
 int Unbind(int mbx)
 {
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */

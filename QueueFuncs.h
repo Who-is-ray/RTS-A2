@@ -10,6 +10,7 @@
 
 typedef struct __QueueItem QueueItem;
 
+// Queue Item Struct, only take first two elements, which is Next and Prev pointer
 struct __QueueItem
 {
     QueueItem* Next;

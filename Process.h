@@ -25,16 +25,15 @@
 
 typedef struct __PCB PCB;
 
-void set_LR(volatile unsigned long);
-unsigned long get_PSP();
-void set_PSP(volatile unsigned long);
-unsigned long get_MSP(void);
-void set_MSP(volatile unsigned long);
-unsigned long get_SP();
+void set_LR(volatile unsigned long); // set CPU LR
+unsigned long get_PSP(); //get CPU PSP
+void set_PSP(volatile unsigned long); // set CPU PSP
+unsigned long get_MSP(void); //get CPU MSP
+void set_MSP(volatile unsigned long); //set CPU MSP
+unsigned long get_SP(); // get CPU SP
 
-void EnqueueProcess(PCB* pcb);
-void DequeueProcess(PCB* pcb);
-PCB* CheckLowerPriorityProcess();
+// return pcb pointer of the first process below input priority
+PCB* CheckLowerPriorityProcess(int priority);
 void Initialize_Process();
 
 void volatile save_registers();
@@ -69,7 +68,6 @@ typedef struct
 } Stack;
 
 /* Process control block */
-
 struct __PCB
 {
     /* Links to adjacent PCBs */

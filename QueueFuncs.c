@@ -10,12 +10,12 @@
 
 void Enqueue(void* _item, QueueItem** queue_head)
 {
-    QueueItem* item = (QueueItem*)_item;
+    QueueItem* item = (QueueItem*)_item; // get item
     if ((*queue_head) == NULL) // if queue is empty, insert to queue
     {
-        *queue_head = item;
-        item->Next = item;
-        item->Prev = item;
+        *queue_head = item; // update queue head
+        item->Next = item; // set next
+        item->Prev = item; // set previous
     }
     else
     {
@@ -34,9 +34,9 @@ void Dequeue(void* _item, QueueItem** queue_head)
     QueueItem* item = (QueueItem*)_item;
     if ((*queue_head)->Next == (*queue_head)) // if has only one object, clear the queue
 	{
-		*queue_head = NULL;
-		item->Next = NULL;
-		item->Prev = NULL;
+		*queue_head = NULL; // clear head
+		item->Next = NULL; // clear next
+		item->Prev = NULL; // clear previous
 	}
 	else
 	{

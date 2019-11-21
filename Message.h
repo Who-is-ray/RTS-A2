@@ -8,14 +8,16 @@
 #ifndef MESSAGE_H_
 #define MESSAGE_H_
 
-#define MAILBOXLIST_SIZE	32
+#define MAILBOXLIST_SIZE	32 // size of mailbox list
 
 typedef struct __Message Message;
 typedef struct __Mailbox Mailbox;
 
+// Enqueue mailbox to available mailboxes
 void MailboxListIntialization();
+
+// Initialization Mailbox list
 void EnqueueMbxToAvailable(Mailbox* mbx, Mailbox** queue_head);
-void DequeueMbxFromQueue(Mailbox* mbx, Mailbox** queue_head);
 
 // stucture of Message
 struct __Message

@@ -17,13 +17,13 @@
 
 extern void SysTickInit();
 
-extern PCB* RUNNING;
-extern PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE];
-extern int PENDSV_ON;
-extern Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
-extern Mailbox* AVAILABLE_MAILBOX;
+extern PCB* RUNNING; // RUNNING process
+extern PCB* PRIORITY_LIST[PRIORITY_LIST_SIZE]; // priority list stores all processes
+extern int PENDSV_ON; // pend sv flag
+extern Mailbox MAILBOXLIST[MAILBOXLIST_SIZE]; // mailbox list stores all mailboxes
+extern Mailbox* AVAILABLE_MAILBOX; // head of available mailboxes
 
-volatile int FirstSVCall = FALSE;
+volatile int FirstSVCall = FALSE; // first sv call flag
 int UNBLOCK_PRIORITY = 0; //A global variable of the priority of unblocked process
 
 // function to block running process and switch to next process
@@ -187,12 +187,12 @@ void SVCHandler(Stack *argptr)
         {
         case GETID:
 		{
-			kcaptr->RtnValue = RUNNING->PID;
+			kcaptr->RtnValue = RUNNING->PID; // return id
 			break;
 		}
 		case TERMINATE:
 		{
-			BlockRunningProcess(NULL);
+			BlockRunningProcess(NULL); // terminate RUNNING
 
 			break;
 		}
@@ -205,10 +205,12 @@ void SVCHandler(Stack *argptr)
 			RUNNING->Priority = new_priority; // assign new priority
 			Enqueue(RUNNING, (QueueItem**)&(PRIORITY_LIST[RUNNING->Priority])); // Enqueue to new priority queue
 
-			if (new_priority<old_priority)
+			if (new_priority<old_priority) // if nice to lower priority queue
 			{
-				RUNNING = CheckLowerPriorityProcess(old_priority);
-				set_PSP((unsigned long)(RUNNING->PSP));
+				RUNNING = CheckLowerPriorityProcess(old_priority); // update RUNNING
+				PRIORITY_LIST[RUNNING->Priority] = RUNNING; // update head of process queue
+
+				set_PSP((unsigned long)(RUNNING->PSP)); // run new process
 			}
 
 			kcaptr->RtnValue = TRUE;
@@ -257,12 +259,17 @@ void SVCHandler(Stack *argptr)
 		case UNBIND:
 		{
 			int mailbox_to_unbind = kcaptr->Arg1;
-			Mailbox* mbx = &MAILBOXLIST[mailbox_to_unbind];
-			if (mbx->Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
+			if (mailbox_to_unbind>=0 && mailbox_to_unbind <MAILBOXLIST_SIZE) // if mailbox number is valid
 			{
-				mbx->Owner = NULL;
-				Dequeue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head));
-				EnqueueMbxToAvailable(mbx,&AVAILABLE_MAILBOX);
+				Mailbox* mbx = &MAILBOXLIST[mailbox_to_unbind];
+				if (mbx->Owner == RUNNING) // if RUNNING process own this mailbox, then unbind
+				{
+					mbx->Owner = NULL; // clear owner
+					Dequeue(mbx, (QueueItem**)&(RUNNING->Mailbox_Head)); // remove from process's mailbox list
+					EnqueueMbxToAvailable(mbx,&AVAILABLE_MAILBOX); // add to available mailboxes
+				}
+				else
+					kcaptr->RtnValue = ERROR;
 			}
 			else
 				kcaptr->RtnValue = ERROR;
@@ -388,10 +395,10 @@ void PendSV_Handler()
 	PRIORITY_LIST[RUNNING->Priority] = RUNNING->Next; // Update the head of queue
 
 	// get next running process
-	if (UNBLOCK_PRIORITY > RUNNING->Priority)
-		RUNNING = PRIORITY_LIST[UNBLOCK_PRIORITY];
+	if (UNBLOCK_PRIORITY > RUNNING->Priority) // if unblocked higher priority process
+		RUNNING = PRIORITY_LIST[UNBLOCK_PRIORITY]; // run unblocked process
 	else
-		RUNNING = RUNNING->Next;
+		RUNNING = RUNNING->Next; // run next
 
 	// Update PSP value
 	set_PSP((unsigned long)(RUNNING->PSP));

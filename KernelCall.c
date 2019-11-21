@@ -2,7 +2,7 @@
  * KernelCall.c
  *
  *  Created on: Nov 1, 2019
- *      Author: Ray
+ *      Author: Ray, Victor
  */
 
 #include <stdio.h>
@@ -11,12 +11,13 @@
 #include "Uart.h"
 
 #define NVIC_SYS_PRI3_R (*((volatile unsigned long *) 0xE000ED20))
-#define PENDSV_LOWEST_PRIORITY 0x00E00000
-#define PRIORITY_MAX 5
+#define PENDSV_LOWEST_PRIORITY 0x00E00000 // pend SV priority
+#define PRIORITY_MAX 5 // highest priority
 
-extern PCB* RUNNING;
+extern PCB* RUNNING; // Current running process
 extern int PENDSV_ON;
 
+// Initialization Kernal
 void KernelInitialization()
 {
 	/* Initialize UART */
@@ -30,6 +31,7 @@ void KernelInitialization()
 	NVIC_SYS_PRI3_R |= PENDSV_LOWEST_PRIORITY;
 }
 
+// Save address to R7
 void AssignR7(volatile unsigned long data)
 {
     /* Assign 'data' to R7; since the first argument is R0, this is
@@ -38,6 +40,7 @@ void AssignR7(volatile unsigned long data)
     __asm(" mov r7,r0");
 }
 
+// Get ID Kernal call
 int GetID()
 {
     volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
@@ -52,6 +55,7 @@ int GetID()
     return args.RtnValue;
 }
 
+// Termination kernal call
 void Terminate()
 {
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
@@ -65,6 +69,7 @@ void Terminate()
 	SVC();
 }
 
+// Nice kernal call
 int Nice(int new_priority)
 {
 	if (new_priority > 0 && new_priority <= PRIORITY_MAX)

@@ -3,6 +3,7 @@
  *
  *  Created on: Sep 24, 2019
  *      Author: Ray Su
+ *  From Assignment 1
  */
 
 #ifndef QUEUE_H_
@@ -49,7 +50,7 @@ typedef struct
 } Queue;
 
 void Queue_Init();  // Initialize input queue and output queue by setting the head and tail to 0
-int EnQueue(QueueType t, Source s, char v);   //Enqueue a character to selected queue
-int DeQueue(QueueType t, Source* s, char* v);  //Dequeue a character from selected queue
+int EnQueueIO(QueueType t, Source s, char v);   //Enqueue a character to selected queue
+int DeQueueIO(QueueType t, Source* s, char* v);  //Dequeue a character from selected queue
 void OutputData(char* s, int size); // Function to output data
 #endif /* QUEUE_H_ */

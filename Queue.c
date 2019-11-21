@@ -3,6 +3,7 @@
  *
  *  Created on: Sep 24, 2019
  *      Author: Ray
+ *  From Assignment 1
  */
 
 #include <string.h>
@@ -22,7 +23,7 @@ void Queue_Init()
     OutQ.Tail=0;
 }
 
-int EnQueue(QueueType t, Source s, char v)
+int EnQueueIO(QueueType t, Source s, char v)
 {
     int head;
     switch (t)
@@ -66,7 +67,7 @@ int EnQueue(QueueType t, Source s, char v)
     return FALSE;
 }
 
-int DeQueue(QueueType t, Source* s, char* v)
+int DeQueueIO(QueueType t, Source* s, char* v)
 {
     int tail;
     switch (t)
@@ -106,7 +107,7 @@ int DeQueue(QueueType t, Source* s, char* v)
 /* Transmit a character*/
 void TransChar(char c)
 {
-	while (EnQueue(OUTPUT, UART, c) == FALSE); // wait until it is enqueued
+	while (EnQueueIO(OUTPUT, UART, c) == FALSE); // wait until it is enqueued
 }
 
 /* Output a string*/
