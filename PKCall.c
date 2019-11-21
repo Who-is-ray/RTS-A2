@@ -1,8 +1,13 @@
 /*
- * PKCall.c
- *
- *  Created on: Nov 4, 2019
- *      Author: Ray
+ *File name: PKCall.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: pkcall provide the features that used by message system, includes send bind unbind and receive.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
 
 #include <stdlib.h>
@@ -32,21 +37,21 @@ int PKCall(KernelCallCode code, int pkmsg)
 }
 
 int Send(int recver, int sender, void* msg, int* size)
-{
-	SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
-	PKCall(SEND, (int)&arg);
+{//send message from a process to a process, it takes the sender receiver message and size.
+	SendMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };//format the send arguments.
+	PKCall(SEND, (int)&arg);//call pkcall to do it in kernel space.
 	return *arg.Size;
 }
 
 int Receive(int recver, int* sender, void* msg, int* size)
-{
+{//similar to send
 	RecvMsgArgs arg = { .Recver = recver, .Sender = sender, .Msg_addr = msg, .Size = size };
 	PKCall(RECEIVE, (int)&arg);
 	return *arg.Size;
 }
 
 int Bind(int mbx)
-{
+{//bind is to allocate the mailbox to a process when process requesting a new mailbox
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
 
 	// pass code and mailbox number to bind to kernel
@@ -59,11 +64,11 @@ int Bind(int mbx)
 	// Call Kernel
 	SVC();
 
-	return args.RtnValue;
+	return args.RtnValue;//returns the mailbox number that allocates.
 }
 
 int Unbind(int mbx)
-{
+{//deallocate the mailbox(free the mailbox) when a process requesting to unbind the mailbox, or when terminates
 	volatile struct KCallArgs args; /* Volatile to actually reserve space on stack */
 
 	// pass code and mailbox number to bind to kernel
@@ -76,5 +81,5 @@ int Unbind(int mbx)
 	// Call Kernel
 	SVC();
 
-	return args.RtnValue;
+	return args.RtnValue;//returns the mailbox number that deallocated.
 }

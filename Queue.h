@@ -1,8 +1,13 @@
 /*
- *  Queue.h
- *
- *  Created on: Sep 24, 2019
- *      Author: Ray Su
+ *File name: Queue.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: support for queue.c
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.19
  */
 
 #ifndef QUEUE_H_

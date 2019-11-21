@@ -1,11 +1,14 @@
 /*
- * SVC.c
- *
- *  Created on: Nov 1, 2019
- *      Author: Ray
+ *File name: SVC.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: includes all the features that service routine call has.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.19
  */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

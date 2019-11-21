@@ -1,10 +1,14 @@
 /*
- * Message.c
- *
- *  Created on: Nov 4, 2019
- *      Author: Ray
+ *File name: Message.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: initialization of the mailbox list
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.19
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "Message.h"
@@ -17,7 +21,7 @@ Mailbox MAILBOXLIST[MAILBOXLIST_SIZE];
 Mailbox* AVAILABLE_MAILBOX = NULL;
 
 void EnqueueMbxToAvailable(Mailbox* mbx, Mailbox** queue_head)
-{
+{//initialization of a single mailbox
 	Enqueue(mbx, (QueueItem**)queue_head);
 
 	// clear the owner
@@ -36,7 +40,7 @@ void EnqueueMbxToAvailable(Mailbox* mbx, Mailbox** queue_head)
 }
 
 void MailboxListIntialization()
-{
+{//initialization the number of the list size of mailboxes
 	int i;
 	for (i = 0; i < MAILBOXLIST_SIZE; i++)
 	{

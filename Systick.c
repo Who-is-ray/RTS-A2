@@ -1,10 +1,14 @@
 /*
- * Systick.c
- *
- *  Created on: Sep 28, 2019
- *      Author: Ray
+ *File name: Systick.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: Initialization the systick, and provide the systick to support the switch process.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.04
  */
-
 #include "Systick.h"
 #include "Process.h"
 #include "Queue.h"

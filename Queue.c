@@ -1,10 +1,14 @@
 /*
- * Queue.c
- *
- *  Created on: Sep 24, 2019
- *      Author: Ray
+ *File name: Queue.c
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: a queue that support the uart to store the message that wait to assigned to uart data register.
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.19
  */
-
 #include <string.h>
 #include "Queue.h"
 #include "Uart.h"
@@ -15,15 +19,15 @@ Queue InQ;
 Queue OutQ;
 
 void Queue_Init()
-{
-    InQ.Head=0;
-    InQ.Tail=0;
-    OutQ.Head=0;
-    OutQ.Tail=0;
+{//initialize both input and output queue
+    InQ.Head=0;//input queue's head
+    InQ.Tail=0;//input queue's tail
+    OutQ.Head=0;//output queue's head
+    OutQ.Tail=0;//output queue's tail
 }
 
 int EnQueue(QueueType t, Source s, char v)
-{
+{//put in the queue when it received char and figure out it is a input or output
     int head;
     switch (t)
     {
@@ -67,7 +71,7 @@ int EnQueue(QueueType t, Source s, char v)
 }
 
 int DeQueue(QueueType t, Source* s, char* v)
-{
+{//dequeue function that extract the data stored in the either input queue or output queue
     int tail;
     switch (t)
     {

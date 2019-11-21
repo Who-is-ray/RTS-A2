@@ -1,8 +1,13 @@
 /*
- * Uart.h
- *
- *  Created on: Sep 24, 2019
- *      Author: Ray
+ *File name: Uart.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: support for uart.c
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.04
  */
 
 #ifndef UART_H_

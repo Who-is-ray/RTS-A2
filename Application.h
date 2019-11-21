@@ -1,10 +1,14 @@
 /*
- * Application.h
- *
- *  Created on: Sep 26, 2019
- *      Author: Ray
+ *File name: Application.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose:
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.02
  */
-
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 

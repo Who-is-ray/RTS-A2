@@ -1,10 +1,14 @@
 /*
- * Systick.h
- *
- *  Created on: Sep 28, 2019
- *      Author: Ray
+ *File name: Systick.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: header file for systick.c
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.04
  */
-
 #ifndef SYSTICK_H_
 #define SYSTICK_H_
 

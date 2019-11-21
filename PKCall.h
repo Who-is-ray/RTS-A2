@@ -1,10 +1,14 @@
 /*
- * PKCall.h
- *
- *  Created on: Nov 4, 2019
- *      Author: Ray
+ *File name: PKCall.h
+ *School: Dalhousie University
+ *Department: Electrical and computer engineering
+ *Course: Real time system
+ *Professor: Larry Hughes
+ *Purpose: support for PKCall.c
+ *Author:   Ray     Su  B00634512
+            Victor  Gao B00677182
+ *Last day modified: Nov.06
  */
-
 #ifndef PKCALL_H_
 #define PKCALL_H_
 
