@@ -27,7 +27,7 @@ extern int FirstSVCall;
 void main (void)
  {
 	/* Initialization Uart, Systick and Queues. Enable interrupts*/
-	UART0_Init(); // initialize Uart
+	//UART0_Init(); // initialize Uart
 	Queue_Init(); // initialize queue
 	MailboxListIntialization(); // Initialize mailbox list
 	KernelInitialization(); // Initialize Kernel
